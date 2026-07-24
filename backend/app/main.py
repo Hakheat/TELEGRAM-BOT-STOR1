@@ -12,12 +12,11 @@ from app.bot.bot import bot, dp, setup_bot_handlers
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Auto-create SQLite tables on startup for local development
-    if settings.async_database_url.startswith("sqlite"):
-        from app.db.models import Base
-        from app.core.database import engine
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
+    # Auto-create all missing database tables on startup (PostgreSQL/Supabase & SQLite)
+    from app.db.models import Base
+    from app.core.database import engine
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
     # Startup actions
     await init_redis()
