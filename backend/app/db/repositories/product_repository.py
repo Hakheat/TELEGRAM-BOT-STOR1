@@ -21,7 +21,7 @@ class ProductRepository(BaseRepository[Product]):
         res = await self.session.execute(stmt)
         return res.scalar_one_or_none()
 
-    async def get_active_categories((self)) -> List[Category]:
+    async def get_active_categories(self) -> List[Category]:
         stmt = select(Category).where(Category.is_active.is_(True)).order_by(Category.id.asc())
         res = await self.session.execute(stmt)
         return list(res.scalars().all())
