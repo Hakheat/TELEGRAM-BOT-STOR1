@@ -42,7 +42,7 @@ export default function BroadcastPage() {
     <div className="max-w-4xl space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white">📢 Telegram Broadcast Console</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-100">📢 Telegram Broadcast Console</h1>
         <p className="text-xs text-slate-400 mt-1">
           Send bulk HTML rich-text announcements, promotions, or system alerts to all registered bot users.
         </p>

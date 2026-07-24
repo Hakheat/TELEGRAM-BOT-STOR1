@@ -80,7 +80,7 @@ export const BulkUploadModal: React.FC<BulkUploadModalProps> = ({
           >
             {products.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.title} (${p.price.toFixed(2)}) - Current Stock: {p.stock_count}
+                {p.title} (${Number(p.price || 0).toFixed(2)}) - Current Stock: {p.stock_count}
               </option>
             ))}
           </select>

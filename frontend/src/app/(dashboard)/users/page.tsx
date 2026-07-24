@@ -63,7 +63,7 @@ export default function UsersPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">👥 Telegram Customer Base</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-100">👥 Telegram Customer Base</h1>
           <p className="text-xs text-slate-400 mt-1">
             Registered Telegram bot users, balance auditing, and manual balance adjustment console.
           </p>

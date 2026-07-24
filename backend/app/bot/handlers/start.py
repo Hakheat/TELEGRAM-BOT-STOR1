@@ -1,38 +1,63 @@
 from aiogram import Router, F
 from aiogram.filters import CommandStart, Command
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models.user import User
 from app.bot.keyboards.reply import get_main_reply_keyboard
+from app.bot.utils.localization import get_text
 
 router = Router()
 
 
+def get_language_inline_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="🇰🇭 ភាសាខ្មែរ (Khmer)", callback_data="set_lang:km"),
+                InlineKeyboardButton(text="🇬🇧 English", callback_data="set_lang:en"),
+            ]
+        ]
+    )
+
+
 @router.message(CommandStart())
 async def start_handler(message: Message, db_user: User):
-    welcome_text = (
-        f"👋 សួស្ដី <b>{message.from_user.first_name}</b>!\n\n"
-        f"សូមស្វាគមន៍មកកាន់ <b>Store Manager Digital Bot</b> 🛍️\n"
-        f"ហាងលក់អាខោន និង License Keys ឌីជីថលស្វ័យប្រវត្តិ 24/7!\n\n"
-        f"💵 តុល្យភាពបច្ចុប្បន្ន: <b>${db_user.balance:.2f}</b>\n"
-        f"🆔 Telegram ID: <code>{db_user.telegram_id}</code>\n\n"
-        f"សូមជ្រើសរើសម៉ឺនុយខាងក្រោមដើម្បីចាប់ផ្តើម៖"
+    lang = db_user.language_code or "km"
+    welcome_text = get_text(
+        lang,
+        "welcome",
+        name=message.from_user.first_name,
+        balance=db_user.balance,
+        telegram_id=db_user.telegram_id,
     )
-    await message.answer(welcome_text, reply_markup=get_main_reply_keyboard())
+    await message.answer(welcome_text, reply_markup=get_main_reply_keyboard(lang))
 
 
 @router.message(Command("help"))
-@router.message(F.text == "❓ ជំនួយ")
-async def help_handler(message: Message):
-    help_text = (
-        "<b>❓ មជ្ឈមណ្ឌលជំនួយ (Support & Help)</b>\n\n"
-        "• <b>🛍️ ផលិតផល:</b> មើលបញ្ជីអាខោន/License Keys ដែលមានលក់\n"
-        "• <b>💰 បញ្ចូលទឹកប្រាក់:</b> បញ្ចូលទឹកប្រាក់តាមរយៈ KHQR ស្វ័យប្រវត្តិ\n"
-        "• <b>🌀 ប្រវត្តិការបញ្ជាទិញ:</b> ពិនិត្យមើលកូដ/អាខោនដែលបានទិញរួច\n\n"
-        "📞 ទំនាក់ទំនងផ្នែកសេវាអតិថិជន: @StoreSupportAdmin"
-    )
+@router.message(F.text.in_({"❓ ជំនួយ", "❓ Help"}))
+async def help_handler(message: Message, db_user: User):
+    lang = db_user.language_code or "km"
+    help_text = get_text(lang, "help")
     await message.answer(help_text)
 
 
-@router.message(F.text == "🌐 ភាសា")
-async def language_handler(message: Message):
-    await message.answer("🌐 ប្រព័ន្ធកំពុងប្រើប្រាស់ <b>ភាសាខ្មែរ (Khmer)</b> ជាភាសាដើម។")
+@router.message(F.text.in_({"🌐 ភាសា", "🌐 Language"}))
+async def language_handler(message: Message, db_user: User):
+    lang = db_user.language_code or "km"
+    text = get_text(lang, "lang_select")
+    await message.answer(text, reply_markup=get_language_inline_keyboard())
+
+
+@router.callback_query(F.data.startswith("set_lang:"))
+async def set_language_callback(callback: CallbackQuery, session: AsyncSession, db_user: User):
+    lang = callback.data.split(":")[1]
+    
+    # Update language code in db
+    db_user.language_code = lang
+    await session.commit()
+    
+    confirm_text = get_text(lang, "lang_updated")
+    
+    await callback.message.delete()
+    await callback.message.answer(confirm_text, reply_markup=get_main_reply_keyboard(lang))
+    await callback.answer()

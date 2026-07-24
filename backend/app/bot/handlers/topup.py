@@ -6,23 +6,23 @@ from app.db.models.user import User
 from app.bot.keyboards.inline import get_topup_preset_keyboard
 from app.bot.states.topup_states import TopUpStatesGroup
 from app.services.payment_service import PaymentService
+from app.bot.utils.localization import get_text
 
 router = Router()
 
 
-@router.message(F.text.in_({"💰 បញ្ចូលថវិកា", "💰 បញ្ចូលទឹកប្រាក់"}))
-async def topup_menu_handler(message: Message):
-    text = (
-        "<b>💰 បញ្ចូលថវិកាស្វ័យប្រវត្តិ 24/7 (KHQR Auto Top-up)</b>\n\n"
-        "សូមជ្រើសរើសចំនួនទឹកប្រាក់ដែលអ្នកចង់បញ្ចូល ៖"
-    )
+@router.message(F.text.in_({"💰 បញ្ចូលថវិកា", "💰 បញ្ចូលទឹកប្រាក់", "💰 Top Up"}))
+async def topup_menu_handler(message: Message, db_user: User):
+    lang = db_user.language_code or "km"
+    text = get_text(lang, "topup_menu")
     await message.answer(text, reply_markup=get_topup_preset_keyboard())
 
 
 @router.callback_query(F.data == "cancel_topup")
-async def cancel_topup_handler(callback: CallbackQuery, state: FSMContext):
+async def cancel_topup_handler(callback: CallbackQuery, state: FSMContext, db_user: User):
+    lang = db_user.language_code or "km"
     await state.clear()
-    await callback.message.edit_text("❌ បដិសេធការបញ្ចូលថវិកា!")
+    await callback.message.edit_text(get_text(lang, "cancel_topup"))
     await callback.answer()
 
 
@@ -35,51 +35,83 @@ async def topup_preset_selected(callback: CallbackQuery, db_user: User):
 
 
 @router.callback_query(F.data == "topup_custom")
-async def topup_custom_prompt(callback: CallbackQuery, state: FSMContext):
+async def topup_custom_prompt(callback: CallbackQuery, state: FSMContext, db_user: User):
+    lang = db_user.language_code or "km"
     await state.set_state(TopUpStatesGroup.waiting_for_amount)
-    await callback.message.edit_text(
-        "✏️ <b>សូមវាយបញ្ចូលចំនួនទឹកប្រាក់ ($) ដែលអ្នកចង់បញ្ចូល៖</b>\n"
-        "<i>ឧទាហរណ៍: 2.50 ឬ 15</i>"
-    )
+    await callback.message.edit_text(get_text(lang, "custom_topup_prompt"))
     await callback.answer()
 
 
 @router.message(TopUpStatesGroup.waiting_for_amount)
 async def process_custom_topup_amount(message: Message, state: FSMContext, db_user: User):
+    lang = db_user.language_code or "km"
     try:
         amount = Decimal(message.text.strip())
         if amount <= 0:
             raise ValueError()
     except Exception:
-        await message.answer("⚠️ សូមវាយបញ្ចូលចំនួនលេខទឹកប្រាក់ត្រឹមត្រូវ (ឧទាហរណ៍: 5.00) ៖")
+        await message.answer(get_text(lang, "invalid_amount"))
         return
 
     await state.clear()
 
     # Generate QR response
+    from app.core.config import settings
+    import os
+    
     khqr_string = PaymentService.generate_khqr_payload(db_user.telegram_id, amount)
     qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={khqr_string}"
-
-    caption = (
-        f"<b>🇰🇭 KHQR បញ្ចូលថវិកាស្វ័យប្រវត្តិ</b>\n\n"
-        f"👤 Telegram ID: <code>{db_user.telegram_id}</code>\n"
-        f"💵 ចំនួនទឹកប្រាក់: <b>${amount:.2f}</b>\n\n"
-        f"📌 <b>ចំណាំ:</b> បន្ទាប់ពីលោកអ្នកបានទូទាត់ប្រាក់តាម Bakong App ឬ Mobile Banking ស្កេនរួចរាល់ ទឹកប្រាក់នឹងចូលគណនីស្វ័យប្រវត្តិ!"
+    
+    photo = qr_url
+    if settings.ABA_QR_LINK:
+        if settings.ABA_QR_LINK.startswith("/static/"):
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+            local_path = os.path.join(base_dir, "app", settings.ABA_QR_LINK.lstrip("/"))
+            if os.path.exists(local_path):
+                from aiogram.types import FSInputFile
+                photo = FSInputFile(local_path)
+        else:
+            photo = settings.ABA_QR_LINK
+            
+    caption = get_text(
+        lang,
+        "topup_qr_caption",
+        telegram_id=db_user.telegram_id,
+        amount=amount,
+        aba_name=settings.ABA_ACCOUNT_NAME,
+        aba_number=settings.ABA_ACCOUNT_NUMBER,
     )
 
-    await message.answer_photo(photo=qr_url, caption=caption)
+    await message.answer_photo(photo=photo, caption=caption)
 
 
 async def generate_topup_qr_response(callback: CallbackQuery, db_user: User, amount: Decimal):
+    lang = db_user.language_code or "km"
+    from app.core.config import settings
+    import os
+    
     khqr_string = PaymentService.generate_khqr_payload(db_user.telegram_id, amount)
     qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={khqr_string}"
-
-    caption = (
-        f"<b>🇰🇭 KHQR បញ្ចូលថវិកាស្វ័យប្រវត្តិ</b>\n\n"
-        f"👤 Telegram ID: <code>{db_user.telegram_id}</code>\n"
-        f"💵 ចំនួនទឹកប្រាក់: <b>${amount:.2f}</b>\n\n"
-        f"📌 <b>ចំណាំ:</b> បន្ទាប់ពីលោកអ្នកបានទូទាត់ប្រាក់តាម Bakong App ឬ Mobile Banking ស្កេនរួចរាល់ ទឹកប្រាក់នឹងចូលគណនីស្វ័យប្រវត្តិ!"
+    
+    photo = qr_url
+    if settings.ABA_QR_LINK:
+        if settings.ABA_QR_LINK.startswith("/static/"):
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+            local_path = os.path.join(base_dir, "app", settings.ABA_QR_LINK.lstrip("/"))
+            if os.path.exists(local_path):
+                from aiogram.types import FSInputFile
+                photo = FSInputFile(local_path)
+        else:
+            photo = settings.ABA_QR_LINK
+            
+    caption = get_text(
+        lang,
+        "topup_qr_caption",
+        telegram_id=db_user.telegram_id,
+        amount=amount,
+        aba_name=settings.ABA_ACCOUNT_NAME,
+        aba_number=settings.ABA_ACCOUNT_NUMBER,
     )
 
     await callback.message.delete()
-    await callback.message.answer_photo(photo=qr_url, caption=caption)
+    await callback.message.answer_photo(photo=photo, caption=caption)

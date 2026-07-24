@@ -66,5 +66,10 @@ class Settings(BaseSettings):
     KHQR_ACCOUNT_NUMBER: str = "000111222"
     KHQR_SECRET: str = "khqr_webhook_secret_key"
 
+    # ABA Payment specific config
+    ABA_ACCOUNT_NAME: str = "HAK HAK"
+    ABA_ACCOUNT_NUMBER: str = "000 111 222"
+    ABA_QR_LINK: str = "https://example.com/aba_qr.jpg"
+
 
 settings = Settings()

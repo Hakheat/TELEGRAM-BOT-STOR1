@@ -22,7 +22,7 @@ class ProductRepository(BaseRepository[Product]):
         return res.scalar_one_or_none()
 
     async def get_active_categories(self) -> List[Category]:
-        stmt = select(Category).where(Category.is_active.is_(True)).order_by(Category.id.asc())
+        stmt = select(Category).where(Category.is_active == True).order_by(Category.id.asc())
         res = await self.session.execute(stmt)
         return list(res.scalars().all())
 
@@ -35,7 +35,7 @@ class ProductRepository(BaseRepository[Product]):
     async def get_products_by_category(self, category_id: int, only_active: bool = True) -> List[Product]:
         stmt = select(Product).where(Product.category_id == category_id)
         if only_active:
-            stmt = stmt.where(Product.is_active.is_(True))
+            stmt = stmt.where(Product.is_active == True)
         stmt = stmt.order_by(Product.id.asc())
         res = await self.session.execute(stmt)
         return list(res.scalars().all())
@@ -45,7 +45,7 @@ class ProductRepository(BaseRepository[Product]):
         stmt = (
             select(
                 Product,
-                func.count(DigitalKey.id).filter(DigitalKey.is_sold.is_(False)).label("stock_count"),
+                func.count(DigitalKey.id).filter(DigitalKey.is_sold == False).label("stock_count"),
             )
             .outerjoin(DigitalKey, DigitalKey.product_id == Product.id)
             .where(Product.id == product_id)
@@ -61,7 +61,7 @@ class ProductRepository(BaseRepository[Product]):
         stmt = (
             select(
                 Product,
-                func.count(DigitalKey.id).filter(DigitalKey.is_sold.is_(False)).label("stock_count"),
+                func.count(DigitalKey.id).filter(DigitalKey.is_sold == False).label("stock_count"),
             )
             .outerjoin(DigitalKey, DigitalKey.product_id == Product.id)
             .group_by(Product.id)
@@ -75,10 +75,10 @@ class ProductRepository(BaseRepository[Product]):
         subquery = (
             select(
                 Product.id,
-                func.count(DigitalKey.id).filter(DigitalKey.is_sold.is_(False)).label("stock_count"),
+                func.count(DigitalKey.id).filter(DigitalKey.is_sold == False).label("stock_count"),
             )
             .outerjoin(DigitalKey, DigitalKey.product_id == Product.id)
-            .where(Product.is_active.is_(True))
+            .where(Product.is_active == True)
             .group_by(Product.id)
             .subquery()
         )

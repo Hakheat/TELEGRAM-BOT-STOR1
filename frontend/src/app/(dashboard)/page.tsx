@@ -6,6 +6,7 @@ import { MetricCard } from "@/components/features/analytics/metric-card";
 import { LiveFeed } from "@/components/features/analytics/live-feed";
 import { useLiveAnalytics } from "@/hooks/use-websocket";
 import { formatCurrency } from "@/lib/utils";
+import { useLanguageStore } from "@/store/use-language-store";
 import {
   AreaChart,
   Area,
@@ -28,6 +29,7 @@ const sampleChartData = [
 
 export default function DashboardPage() {
   const { data, loading } = useLiveAnalytics(4000);
+  const { t } = useLanguageStore();
 
   const todayRevenue = data?.today_revenue ?? 0.0;
   const soldToday = data?.sold_today ?? 0;
@@ -37,52 +39,36 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">📊 Executive Analytics</h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Real-time performance metrics and live automated bot activity feed.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs text-emerald-400">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-            System Live & Connected
-          </span>
-        </div>
-      </div>
-
       {/* 📊 Quick Stats Bar */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
-          title="Today Revenue"
+          title={t("today_revenue")}
           value={formatCurrency(todayRevenue)}
-          subtitle="All automated sales today"
+          subtitle={t("all_automated_sales")}
           icon={DollarSign}
           variant="blue"
           loading={loading}
         />
         <MetricCard
-          title="Sold Today"
+          title={t("sold_today")}
           value={`${soldToday} Items`}
-          subtitle="Successfully delivered keys"
+          subtitle={t("successfully_delivered")}
           icon={PackageCheck}
           variant="emerald"
           loading={loading}
         />
         <MetricCard
-          title="Low Stock Warning"
+          title={t("low_stock_warning")}
           value={`${lowStock} Products`}
-          subtitle="Items with stock <= 5"
+          subtitle={t("items_with_low_stock")}
           icon={AlertTriangle}
           variant="amber"
           loading={loading}
         />
         <MetricCard
-          title="Total Bot Users"
+          title={t("total_bot_users")}
           value={totalUsers.toLocaleString()}
-          subtitle="Registered Telegram customers"
+          subtitle={t("registered_customers")}
           icon={Users}
           variant="purple"
           loading={loading}
@@ -93,17 +79,17 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Revenue & Sales Chart */}
         <div className="lg:col-span-2 rounded-xl border border-slate-800 bg-slate-900/60 p-5 shadow-lg flex flex-col justify-between">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4 font-kantumruy-pro">
             <div>
-              <h3 className="text-sm font-semibold text-slate-100">📈 Revenue & Sales Analytics</h3>
-              <p className="text-[11px] text-slate-400">24-hour volume trend</p>
+              <h3 className="text-sm font-semibold text-slate-100">{t("revenue_sales_analytics")}</h3>
+              <p className="text-[11px] text-slate-400">{t("hour_volume_trend")}</p>
             </div>
             <div className="flex gap-1 text-[11px]">
               <button className="px-2.5 py-1 rounded-md bg-blue-600/20 text-blue-400 border border-blue-500/30 font-medium">
-                Daily
+                {t("daily")}
               </button>
-              <button className="px-2.5 py-1 rounded-md text-slate-400 hover:bg-slate-800">Weekly</button>
-              <button className="px-2.5 py-1 rounded-md text-slate-400 hover:bg-slate-800">Monthly</button>
+              <button className="px-2.5 py-1 rounded-md text-slate-400 hover:bg-slate-800">{t("weekly")}</button>
+              <button className="px-2.5 py-1 rounded-md text-slate-400 hover:bg-slate-800">{t("monthly")}</button>
             </div>
           </div>
 

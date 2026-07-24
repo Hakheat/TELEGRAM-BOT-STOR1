@@ -2,6 +2,12 @@ import { apiClient } from "@/lib/api-client";
 
 export interface SettingsData {
   bot_token: string;
+  khqr_merchant_name: string;
+  khqr_merchant_city: string;
+  khqr_account_number: string;
+  aba_account_name: string;
+  aba_account_number: string;
+  aba_qr_link: string;
 }
 
 export const settingsService = {
@@ -12,6 +18,17 @@ export const settingsService = {
 
   async updateSettings(data: SettingsData): Promise<SettingsData> {
     const res = await apiClient.post<SettingsData>("/settings", data);
+    return res.data;
+  },
+
+  async uploadQrCode(file: File): Promise<{ qr_link: string }> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await apiClient.post<{ qr_link: string }>("/settings/upload-qr", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return res.data;
   },
 };

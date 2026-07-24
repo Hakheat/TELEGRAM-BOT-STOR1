@@ -1,7 +1,9 @@
 import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+import os
 from app.core.config import settings
 from app.core.redis import init_redis, close_redis
 from app.api.v1.router import api_v1_router
@@ -46,6 +48,11 @@ app = FastAPI(
     redoc_url="/redoc",
     lifespan=lifespan,
 )
+
+# Mount uploads static directory
+static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+os.makedirs(static_dir, exist_ok=True)
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # CORS middleware for Next.js Admin Dashboard frontend
 app.add_middleware(

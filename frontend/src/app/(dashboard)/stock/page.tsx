@@ -36,7 +36,7 @@ export default function StockPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">🔑 Digital Inventory & Keys Vault</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-100">🔑 Digital Inventory & Keys Vault</h1>
           <p className="text-xs text-slate-400 mt-1">
             AES-256 Encrypted stock repository with instant bulk multi-line text ingestion.
           </p>
@@ -66,7 +66,7 @@ export default function StockPage() {
             <Shield className="h-5 w-5" />
           </div>
           <div>
-            <h4 className="font-semibold text-white">PostgreSQL FOR UPDATE SKIP LOCKED Enabled</h4>
+            <h4 className="font-semibold text-blue-100">PostgreSQL FOR UPDATE SKIP LOCKED Enabled</h4>
             <p className="text-blue-300/80">
               Guarantees zero double-allocation or race conditions during flash sales. Keys are decrypted dynamically on delivery.
             </p>

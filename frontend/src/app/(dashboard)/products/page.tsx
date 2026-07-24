@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ProductFormModal } from "@/components/features/products/product-form";
+import { CategoryFormModal } from "@/components/features/products/category-form";
 import { productService } from "@/services/product.service";
 import { Category, Product } from "@/types/product.types";
 import { formatCurrency } from "@/lib/utils";
@@ -15,6 +16,7 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const fetchData = async () => {
@@ -62,7 +64,7 @@ export default function ProductsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">🛍️ Products Catalog Management</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-100">🛍️ Products Catalog Management</h1>
           <p className="text-xs text-slate-400 mt-1">
             Manage store product categories, prices, descriptions, and active stock levels.
           </p>
@@ -71,6 +73,15 @@ export default function ProductsPage() {
           <Button variant="outline" size="sm" onClick={fetchData} className="gap-2">
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             Refresh
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsCategoryModalOpen(true)}
+            className="gap-2 border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
+          >
+            <Plus className="h-4 w-4" />
+            Add Category
           </Button>
           <Button variant="primary" size="sm" onClick={handleAddNew} className="gap-2">
             <Plus className="h-4 w-4" />
@@ -154,6 +165,15 @@ export default function ProductsPage() {
           onClose={() => setIsModalOpen(false)}
           categories={categories}
           initialProduct={selectedProduct}
+          onSuccess={fetchData}
+        />
+      )}
+
+      {/* Add Category Modal */}
+      {isCategoryModalOpen && (
+        <CategoryFormModal
+          isOpen={isCategoryModalOpen}
+          onClose={() => setIsCategoryModalOpen(false)}
           onSuccess={fetchData}
         />
       )}
