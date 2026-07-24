@@ -8,7 +8,7 @@ from app.core.database import AsyncSessionLocal
 from app.db.models.broadcast_schedule import BroadcastSchedule
 from app.db.models.user import User
 from app.bot.bot import bot
-from aiogram.types import FSInputFile, BufferedInputFile
+from aiogram.types import FSInputFile, BufferedInputFile, URLInputFile
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -52,29 +52,70 @@ async def run_broadcast_worker(schedule_id: int):
     if schedule.title and schedule.title.strip():
         formatted_text = f"<b>{schedule.title.strip()}</b>\n\n{formatted_text}"
 
-    # Resolve local media path if provided
+    # Resolve local or remote media path if provided
     local_path = None
+    is_remote_url = False
     if schedule.image_path:
-        app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        rel_path = os.path.normpath(schedule.image_path.lstrip("/\\"))
-        
-        target_path = os.path.join(app_dir, rel_path)
-        alt_path1 = os.path.join(app_dir, "api", rel_path)
-        alt_path2 = os.path.join(app_dir, "app", rel_path)
-
-        if os.path.exists(target_path):
-            local_path = target_path
-        elif os.path.exists(alt_path1):
-            local_path = alt_path1
-        elif os.path.exists(alt_path2):
-            local_path = alt_path2
+        if schedule.image_path.startswith("http://") or schedule.image_path.startswith("https://"):
+            is_remote_url = True
         else:
-            local_path = target_path
+            app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            rel_path = os.path.normpath(schedule.image_path.lstrip("/\\"))
+            
+            target_path = os.path.join(app_dir, rel_path)
+            alt_path1 = os.path.join(app_dir, "api", rel_path)
+            alt_path2 = os.path.join(app_dir, "app", rel_path)
+
+            if os.path.exists(target_path):
+                local_path = target_path
+            elif os.path.exists(alt_path1):
+                local_path = alt_path1
+            elif os.path.exists(alt_path2):
+                local_path = alt_path2
+            else:
+                local_path = target_path
 
     # Process each user
     for tg_id in telegram_ids:
         try:
-            if local_path and os.path.exists(local_path):
+            if is_remote_url:
+                url_path = schedule.image_path.lower()
+                is_video = any(ext in url_path for ext in [".mp4", ".mov", ".avi", ".webm", ".mkv", "/video/"])
+                input_file = URLInputFile(schedule.image_path)
+
+                if is_video:
+                    try:
+                        await bot.send_video(
+                            chat_id=tg_id,
+                            video=input_file,
+                            caption=formatted_text,
+                            parse_mode="HTML"
+                        )
+                    except Exception as parse_err:
+                        logger.warning(f"HTML parse failed for video caption to {tg_id}, falling back to plain text: {parse_err}")
+                        await bot.send_video(
+                            chat_id=tg_id,
+                            video=URLInputFile(schedule.image_path),
+                            caption=formatted_text,
+                            parse_mode=None
+                        )
+                else:
+                    try:
+                        await bot.send_photo(
+                            chat_id=tg_id,
+                            photo=input_file,
+                            caption=formatted_text,
+                            parse_mode="HTML"
+                        )
+                    except Exception as parse_err:
+                        logger.warning(f"HTML parse failed for photo caption to {tg_id}, falling back to plain text: {parse_err}")
+                        await bot.send_photo(
+                            chat_id=tg_id,
+                            photo=URLInputFile(schedule.image_path),
+                            caption=formatted_text,
+                            parse_mode=None
+                        )
+            elif local_path and os.path.exists(local_path):
                 is_video = any(local_path.lower().endswith(ext) for ext in [".mp4", ".mov", ".avi", ".webm", ".mkv", ".3gp"])
                 input_file = get_input_file(local_path)
                 

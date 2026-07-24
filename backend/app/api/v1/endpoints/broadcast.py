@@ -61,6 +61,20 @@ async def upload_image(
         raise HTTPException(status_code=400, detail="File must be an image or a video.")
 
     try:
+        # Check if Cloudinary credentials are fully configured
+        if settings.CLOUDINARY_CLOUD_NAME and settings.CLOUDINARY_API_KEY and settings.CLOUDINARY_API_SECRET:
+            import cloudinary
+            import cloudinary.uploader
+            cloudinary.config(
+                cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+                api_key=settings.CLOUDINARY_API_KEY,
+                api_secret=settings.CLOUDINARY_API_SECRET,
+                secure=True
+            )
+            upload_result = cloudinary.uploader.upload(file.file, resource_type="auto")
+            cloudinary_url = upload_result.get("secure_url")
+            return {"image_path": cloudinary_url}
+
         os.makedirs(UPLOAD_DIR, exist_ok=True)
         file_ext = os.path.splitext(file.filename)[1]
         filename = f"{uuid.uuid4()}{file_ext}"
