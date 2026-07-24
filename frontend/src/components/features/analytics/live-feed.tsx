@@ -12,9 +12,10 @@ interface LiveFeedProps {
     amount: number;
     created_at: string;
   }>;
+  loading?: boolean;
 }
 
-export const LiveFeed: React.FC<LiveFeedProps> = ({ feedItems }) => {
+export const LiveFeed: React.FC<LiveFeedProps> = ({ feedItems, loading = false }) => {
   return (
     <div className="flex flex-col h-full rounded-xl border border-slate-800 bg-slate-900/60 p-5 shadow-lg">
       <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
@@ -30,7 +31,26 @@ export const LiveFeed: React.FC<LiveFeedProps> = ({ feedItems }) => {
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-3 pr-1 max-h-[340px]">
-        {feedItems.length === 0 ? (
+        {loading ? (
+          [1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between p-3 rounded-lg bg-slate-950/70 border border-slate-800/80 animate-pulse text-xs"
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-full bg-slate-800" />
+                <div className="space-y-1.5">
+                  <div className="h-3 w-16 rounded bg-slate-800" />
+                  <div className="h-3.5 w-32 rounded bg-slate-800/60" />
+                </div>
+              </div>
+              <div className="space-y-1.5 flex flex-col items-end">
+                <div className="h-3.5 w-10 rounded bg-slate-800" />
+                <div className="h-2.5 w-8 rounded bg-slate-800/60" />
+              </div>
+            </div>
+          ))
+        ) : feedItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 text-slate-500 text-xs">
             <Clock className="h-8 w-8 mb-2 opacity-50" />
             <span>No bot order activities recorded yet.</span>

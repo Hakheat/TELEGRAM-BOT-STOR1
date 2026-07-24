@@ -8,6 +8,7 @@ from app.api.v1.endpoints import (
     users,
     webhooks,
     broadcast,
+    settings,
 )
 
 api_v1_router = APIRouter(prefix="/api/v1")
@@ -20,3 +21,4 @@ api_v1_router.include_router(orders.router)
 api_v1_router.include_router(users.router)
 api_v1_router.include_router(webhooks.router)
 api_v1_router.include_router(broadcast.router)
+api_v1_router.include_router(settings.router)

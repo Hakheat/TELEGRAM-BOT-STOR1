@@ -6,14 +6,19 @@ from sqlalchemy.ext.asyncio import (
 )
 from app.core.config import settings
 
-engine = create_async_engine(
-    settings.async_database_url,
-    echo=settings.DEBUG,
-    future=True,
-    pool_size=20,
-    max_overflow=10,
-    pool_pre_ping=True,
-)
+is_sqlite = settings.async_database_url.startswith("sqlite")
+
+engine_kwargs = {
+    "echo": settings.DEBUG,
+    "future": True,
+}
+
+if not is_sqlite:
+    engine_kwargs["pool_size"] = 20
+    engine_kwargs["max_overflow"] = 10
+    engine_kwargs["pool_pre_ping"] = True
+
+engine = create_async_engine(settings.async_database_url, **engine_kwargs)
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
@@ -33,5 +38,3 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
         except Exception:
             await session.rollback()
             raise
-        finally:
-            await session.close()

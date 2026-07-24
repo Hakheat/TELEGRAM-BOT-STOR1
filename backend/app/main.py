@@ -10,21 +10,32 @@ from app.bot.bot import bot, dp, setup_bot_handlers
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Auto-create SQLite tables on startup for local development
+    if settings.async_database_url.startswith("sqlite"):
+        from app.db.models import Base
+        from app.core.database import engine
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
     # Startup actions
     await init_redis()
     setup_bot_handlers()
 
     # If long polling or webhook mode setup
-    bot_task = None
+    import app.bot.bot as bot_module
     if not settings.TELEGRAM_WEBHOOK_URL:
         # Start bot polling in background task for local dev
-        bot_task = asyncio.create_task(dp.start_polling(bot))
+        bot_module.bot_task = asyncio.create_task(dp.start_polling(bot))
 
     yield
 
     # Shutdown actions
-    if bot_task:
-        bot_task.cancel()
+    if bot_module.bot_task:
+        bot_module.bot_task.cancel()
+        try:
+            await bot_module.bot_task
+        except asyncio.CancelledError:
+            pass
     await close_redis()
 
 

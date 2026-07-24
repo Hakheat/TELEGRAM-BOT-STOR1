@@ -13,6 +13,7 @@ import {
   Bot,
   ChevronLeft,
   ChevronRight,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/store/use-sidebar-store";
@@ -24,6 +25,7 @@ const iconMap: Record<string, React.ElementType> = {
   ShoppingCart,
   Users,
   Megaphone,
+  Settings,
 };
 
 const navItems = [
@@ -33,6 +35,7 @@ const navItems = [
   { title: "Orders", href: "/orders", icon: "ShoppingCart" },
   { title: "Users", href: "/users", icon: "Users" },
   { title: "Broadcast", href: "/broadcast", icon: "Megaphone" },
+  { title: "Settings", href: "/settings", icon: "Settings" },
 ];
 
 export const Sidebar: React.FC = () => {

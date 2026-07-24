@@ -9,6 +9,7 @@ interface MetricCardProps {
   icon: LucideIcon;
   trend?: string;
   variant?: "blue" | "emerald" | "amber" | "purple";
+  loading?: boolean;
 }
 
 export const MetricCard: React.FC<MetricCardProps> = ({
@@ -18,6 +19,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   icon: Icon,
   trend,
   variant = "blue",
+  loading = false,
 }) => {
   const colorStyles = {
     blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
@@ -35,8 +37,17 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         </div>
       </div>
       <div className="mt-3">
-        <h3 className="text-2xl font-bold tracking-tight text-slate-100">{value}</h3>
-        {subtitle && <p className="mt-1 text-xs text-slate-500">{subtitle}</p>}
+        {loading ? (
+          <div className="space-y-2">
+            <div className="h-7 w-28 rounded bg-slate-800 animate-pulse" />
+            {subtitle && <div className="h-4.5 w-40 rounded bg-slate-800/60 animate-pulse" />}
+          </div>
+        ) : (
+          <>
+            <h3 className="text-2xl font-bold tracking-tight text-slate-100">{value}</h3>
+            {subtitle && <p className="mt-1 text-xs text-slate-500">{subtitle}</p>}
+          </>
+        )}
       </div>
     </div>
   );

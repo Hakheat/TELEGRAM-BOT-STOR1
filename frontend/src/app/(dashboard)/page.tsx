@@ -29,15 +29,11 @@ const sampleChartData = [
 export default function DashboardPage() {
   const { data, loading } = useLiveAnalytics(4000);
 
-  const todayRevenue = data?.today_revenue ?? 1245.0;
-  const soldToday = data?.sold_today ?? 84;
-  const lowStock = data?.low_stock_alerts ?? 3;
-  const totalUsers = data?.total_users ?? 1420;
-  const liveFeed = data?.live_feed ?? [
-    { order_id: 1042, user: "@user1", product_title: "CapCut Pro 1 Year", amount: 10.0, created_at: "2 mins ago" },
-    { order_id: 1041, user: "@user2", product_title: "Bakong KHQR Topup", amount: 15.0, created_at: "5 mins ago" },
-    { order_id: 1040, user: "@user3", product_title: "Canva Pro Invite", amount: 5.0, created_at: "12 mins ago" },
-  ];
+  const todayRevenue = data?.today_revenue ?? 0.0;
+  const soldToday = data?.sold_today ?? 0;
+  const lowStock = data?.low_stock_alerts ?? 0;
+  const totalUsers = data?.total_users ?? 0;
+  const liveFeed = data?.live_feed ?? [];
 
   return (
     <div className="space-y-6">
@@ -65,6 +61,7 @@ export default function DashboardPage() {
           subtitle="All automated sales today"
           icon={DollarSign}
           variant="blue"
+          loading={loading}
         />
         <MetricCard
           title="Sold Today"
@@ -72,6 +69,7 @@ export default function DashboardPage() {
           subtitle="Successfully delivered keys"
           icon={PackageCheck}
           variant="emerald"
+          loading={loading}
         />
         <MetricCard
           title="Low Stock Warning"
@@ -79,6 +77,7 @@ export default function DashboardPage() {
           subtitle="Items with stock <= 5"
           icon={AlertTriangle}
           variant="amber"
+          loading={loading}
         />
         <MetricCard
           title="Total Bot Users"
@@ -86,6 +85,7 @@ export default function DashboardPage() {
           subtitle="Registered Telegram customers"
           icon={Users}
           variant="purple"
+          loading={loading}
         />
       </div>
 
@@ -108,35 +108,61 @@ export default function DashboardPage() {
           </div>
 
           <div className="h-[280px] w-full pt-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={sampleChartData}>
-                <defs>
-                  <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-                <XAxis dataKey="name" stroke="#6b7280" fontSize={11} />
-                <YAxis stroke="#6b7280" fontSize={11} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#0f172a",
-                    borderColor: "#1e293b",
-                    borderRadius: "0.5rem",
-                    fontSize: "12px",
-                    color: "#f8fafc",
-                  }}
-                />
-                <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorRev)" />
-              </AreaChart>
-            </ResponsiveContainer>
+            {loading ? (
+              <div className="h-full w-full rounded-lg bg-slate-950/40 animate-pulse flex items-center justify-center border border-slate-800/40">
+                <div className="space-y-4 w-5/6">
+                  <div className="h-4 w-1/4 rounded bg-slate-800" />
+                  <div className="h-28 rounded bg-slate-800/30 relative overflow-hidden flex items-end">
+                    {/* Simulated bar chart/wave using skeletons */}
+                    <div className="w-full flex items-end justify-between px-4 h-full pt-6">
+                      <div className="w-[10%] bg-slate-800/50 rounded-t h-[20%]" />
+                      <div className="w-[10%] bg-slate-800/50 rounded-t h-[40%]" />
+                      <div className="w-[10%] bg-slate-800/50 rounded-t h-[35%]" />
+                      <div className="w-[10%] bg-slate-800/50 rounded-t h-[65%]" />
+                      <div className="w-[10%] bg-slate-800/50 rounded-t h-[50%]" />
+                      <div className="w-[10%] bg-slate-800/50 rounded-t h-[80%]" />
+                      <div className="w-[10%] bg-slate-800/50 rounded-t h-[95%]" />
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-[10px] text-slate-600 font-mono">
+                    <div>00:00</div>
+                    <div>08:00</div>
+                    <div>16:00</div>
+                    <div>24:00</div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={sampleChartData}>
+                  <defs>
+                    <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                  <XAxis dataKey="name" stroke="#6b7280" fontSize={11} />
+                  <YAxis stroke="#6b7280" fontSize={11} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#0f172a",
+                      borderColor: "#1e293b",
+                      borderRadius: "0.5rem",
+                      fontSize: "12px",
+                      color: "#f8fafc",
+                    }}
+                  />
+                  <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorRev)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
         {/* ⚡ Live Bot Orders Feed */}
         <div className="lg:col-span-1">
-          <LiveFeed feedItems={liveFeed} />
+          <LiveFeed feedItems={liveFeed} loading={loading} />
         </div>
       </div>
     </div>

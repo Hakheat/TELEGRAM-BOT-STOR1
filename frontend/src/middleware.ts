@@ -12,7 +12,8 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/stock") ||
     pathname.startsWith("/orders") ||
     pathname.startsWith("/users") ||
-    pathname.startsWith("/broadcast");
+    pathname.startsWith("/broadcast") ||
+    pathname.startsWith("/settings");
 
   if (isDashboardRoute && !token) {
     const loginUrl = new URL("/login", request.url);

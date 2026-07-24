@@ -20,7 +20,7 @@ async def user_account_handler(message: Message, db_user: User):
     await message.answer(text)
 
 
-@router.message(F.text == "📜 ប្រវត្តិទិញ")
+@router.message(F.text.in_({"📜 ប្រវត្តិទិញ", "🌀 ប្រវត្តិការបញ្ជាទិញ"}))
 async def purchase_history_handler(message: Message, session: AsyncSession, db_user: User):
     order_repo = OrderRepository(session)
     orders = await order_repo.get_user_orders(user_id=db_user.id, limit=10)
@@ -47,3 +47,27 @@ async def purchase_history_handler(message: Message, session: AsyncSession, db_u
         )
 
     await message.answer("\n".join(history_lines))
+
+
+@router.message(F.text == "💸 កម្មវិធីណែនាំ")
+async def referral_program_handler(message: Message, db_user: User):
+    bot_info = await message.bot.get_me()
+    bot_username = bot_info.username or "bot"
+    text = (
+        "<b>👥 កម្មវិធីណែនាំមិត្តភក្ដិ (Referral Program)</b>\n\n"
+        "ណែនាំមិត្តភក្ដិរបស់អ្នកឱ្យប្រើប្រាស់ Bot នេះ ដើម្បីទទួលបានអត្ថប្រយោជន៍គណៈកម្មការ 5% រាល់ពេលដែលពួកគេទិញទំនិញ!\n\n"
+        f"🔗 <b>តំណភ្ជាប់ណែនាំរបស់អ្នក៖</b>\n"
+        f"<code>https://t.me/{bot_username}?start=ref_{db_user.telegram_id}</code>\n\n"
+        "🎁 <i>រាល់ការទិញរបស់សមាជិកដែលអ្នកណែនាំ ទឹកប្រាក់គណៈកម្មការនឹងចូលទៅក្នុងតុល្យភាពគណនីរបស់អ្នកដោយស្វ័យប្រវត្តិ!</i>"
+    )
+    await message.answer(text)
+
+
+@router.message(F.text == "💳 ប្រវត្តិការទូទាត់")
+async def payment_history_handler(message: Message, db_user: User):
+    text = (
+        "<b>💳 ប្រវត្តិការទូទាត់ប្រាក់ (Payment History)</b>\n\n"
+        "មិនទាន់មានប្រវត្តិទូទាត់ប្រាក់/បញ្ចូលថវិកានៅឡើយទេ។\n\n"
+        "រាល់ប្រតិបត្តិការបញ្ចូលថវិកាជោគជ័យនឹងបង្ហាញនៅទីនេះ។"
+    )
+    await message.answer(text)

@@ -10,7 +10,7 @@ from app.services.payment_service import PaymentService
 router = Router()
 
 
-@router.message(F.text == "💰 បញ្ចូលថវិកា")
+@router.message(F.text.in_({"💰 បញ្ចូលថវិកា", "💰 បញ្ចូលទឹកប្រាក់"}))
 async def topup_menu_handler(message: Message):
     text = (
         "<b>💰 បញ្ចូលថវិកាស្វ័យប្រវត្តិ 24/7 (KHQR Auto Top-up)</b>\n\n"
