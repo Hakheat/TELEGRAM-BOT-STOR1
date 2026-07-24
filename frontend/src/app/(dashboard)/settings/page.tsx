@@ -107,7 +107,7 @@ export default function SettingsPage() {
     );
   }
 
-  const isKh = language === "kh";
+  const isKh = language === "km";
 
   return (
     <div className="max-w-6xl space-y-8 pb-12 font-kantumruy-pro">
