@@ -23,6 +23,10 @@ async def lifespan(app: FastAPI):
     await init_redis()
     setup_bot_handlers()
 
+    # Start scheduled broadcast polling service
+    from app.services.broadcast_scheduler import start_scheduler, stop_scheduler
+    scheduler_task = asyncio.create_task(start_scheduler())
+
     # If long polling or webhook mode setup
     import app.bot.bot as bot_module
     if not settings.TELEGRAM_WEBHOOK_URL:
@@ -32,6 +36,8 @@ async def lifespan(app: FastAPI):
     yield
 
     # Shutdown actions
+    await stop_scheduler(scheduler_task)
+
     if bot_module.bot_task:
         bot_module.bot_task.cancel()
         try:
@@ -39,6 +45,7 @@ async def lifespan(app: FastAPI):
         except asyncio.CancelledError:
             pass
     await close_redis()
+
 
 
 app = FastAPI(
@@ -50,8 +57,26 @@ app = FastAPI(
 )
 
 # Mount uploads static directory
-static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
-os.makedirs(static_dir, exist_ok=True)
+app_dir = os.path.dirname(os.path.abspath(__file__))
+static_dir = os.path.join(app_dir, "static")
+uploads_dir = os.path.join(static_dir, "uploads")
+os.makedirs(uploads_dir, exist_ok=True)
+
+# Copy any legacy files from app/api/static/uploads or app/app/static/uploads to app/static/uploads
+for legacy_folder in [
+    os.path.join(app_dir, "api", "static", "uploads"),
+    os.path.join(app_dir, "app", "static", "uploads"),
+]:
+    if os.path.exists(legacy_folder):
+        for fname in os.listdir(legacy_folder):
+            src_f = os.path.join(legacy_folder, fname)
+            dst_f = os.path.join(uploads_dir, fname)
+            if os.path.isfile(src_f) and not os.path.exists(dst_f):
+                try:
+                    shutil.copy2(src_f, dst_f)
+                except Exception:
+                    pass
+
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # CORS middleware for Next.js Admin Dashboard frontend

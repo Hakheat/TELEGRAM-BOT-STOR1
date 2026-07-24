@@ -4,6 +4,7 @@ from app.db.models.product import Category, Product
 from app.db.models.digital_key import DigitalKey
 from app.db.models.order import Order, OrderItem
 from app.db.models.transaction import Transaction
+from app.db.models.broadcast_schedule import BroadcastSchedule
 
 __all__ = [
     "Base",
@@ -14,4 +15,6 @@ __all__ = [
     "Order",
     "OrderItem",
     "Transaction",
+    "BroadcastSchedule",
 ]
+

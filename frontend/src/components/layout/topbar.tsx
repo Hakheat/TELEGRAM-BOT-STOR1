@@ -18,13 +18,13 @@ export const Topbar: React.FC = () => {
   }, [initTheme]);
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-slate-800 bg-slate-950/80 backdrop-blur-md px-6 text-slate-100">
+    <header className="sticky top-0 z-20 flex h-20 w-full items-center justify-between border-b border-slate-800 bg-slate-950/85 backdrop-blur-md px-6 text-slate-100">
       {/* Search Input */}
       <div className="relative w-72">
-        <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
         <Input
           placeholder={t("search_placeholder")}
-          className="pl-9 bg-slate-900/60 border-slate-800 focus:border-blue-500 font-kantumruy-pro text-xs text-slate-100"
+          className="pl-9 h-11 bg-slate-900/60 border-slate-800 focus:border-blue-500 font-kantumruy-pro text-xs text-slate-100"
         />
       </div>
 

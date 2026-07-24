@@ -69,50 +69,53 @@ async def get_settings(admin=Depends(get_current_admin)):
 
 @router.post("", response_model=SettingsResponse)
 async def update_settings(payload: SettingsUpdate, admin=Depends(get_current_admin)):
-    token = payload.bot_token.strip()
-    merchant_name = payload.khqr_merchant_name.strip()
-    merchant_city = payload.khqr_merchant_city.strip()
-    account_number = payload.khqr_account_number.strip()
-    aba_name = payload.aba_account_name.strip()
-    aba_num = payload.aba_account_number.strip()
-    aba_qr = payload.aba_qr_link.strip()
-
-    if not token or not merchant_name or not merchant_city or not account_number or not aba_name or not aba_num or not aba_qr:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="All configuration parameters are required",
-        )
-
-    # 1. Update .env file
     try:
-        update_env_variable("BOT_TOKEN", token)
-        update_env_variable("KHQR_MERCHANT_NAME", merchant_name)
-        update_env_variable("KHQR_MERCHANT_CITY", merchant_city)
-        update_env_variable("KHQR_ACCOUNT_NUMBER", account_number)
-        update_env_variable("ABA_ACCOUNT_NAME", aba_name)
-        update_env_variable("ABA_ACCOUNT_NUMBER", aba_num)
-        update_env_variable("ABA_QR_LINK", aba_qr)
+        token = payload.bot_token.strip()
+        merchant_name = payload.khqr_merchant_name.strip()
+        merchant_city = payload.khqr_merchant_city.strip()
+        account_number = payload.khqr_account_number.strip()
+        aba_name = payload.aba_account_name.strip()
+        aba_num = payload.aba_account_number.strip()
+        aba_qr = payload.aba_qr_link.strip()
+
+        if not token or not merchant_name or not merchant_city or not account_number or not aba_name or not aba_num or not aba_qr:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="All configuration parameters are required",
+            )
+
+        # 1. Update .env file
+        try:
+            update_env_variable("BOT_TOKEN", token)
+            update_env_variable("KHQR_MERCHANT_NAME", merchant_name)
+            update_env_variable("KHQR_MERCHANT_CITY", merchant_city)
+            update_env_variable("KHQR_ACCOUNT_NUMBER", account_number)
+            update_env_variable("ABA_ACCOUNT_NAME", aba_name)
+            update_env_variable("ABA_ACCOUNT_NUMBER", aba_num)
+            update_env_variable("ABA_QR_LINK", aba_qr)
+        except Exception as e:
+            raise Exception(f"Failed to update config (.env) file. Please check file write permissions. Error: {str(e)}")
+
+        # Update in-memory configuration settings
+        settings.KHQR_MERCHANT_NAME = merchant_name
+        settings.KHQR_MERCHANT_CITY = merchant_city
+        settings.KHQR_ACCOUNT_NUMBER = account_number
+        settings.ABA_ACCOUNT_NAME = aba_name
+        settings.ABA_ACCOUNT_NUMBER = aba_num
+        settings.ABA_QR_LINK = aba_qr
+
+        # 2. Reload the bot with the new token
+        try:
+            await reload_bot(token)
+        except Exception as e:
+            raise Exception(f"Failed to hot-reload bot client. Please make sure the bot token is valid. Error: {str(e)}")
+
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update config file: {e}",
-        )
-
-    # Update in-memory configuration settings
-    settings.KHQR_MERCHANT_NAME = merchant_name
-    settings.KHQR_MERCHANT_CITY = merchant_city
-    settings.KHQR_ACCOUNT_NUMBER = account_number
-    settings.ABA_ACCOUNT_NAME = aba_name
-    settings.ABA_ACCOUNT_NUMBER = aba_num
-    settings.ABA_QR_LINK = aba_qr
-
-    # 2. Reload the bot with the new token
-    try:
-        await reload_bot(token)
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to hot-reload bot client: {e}",
+            detail=str(e),
         )
 
     return SettingsResponse(

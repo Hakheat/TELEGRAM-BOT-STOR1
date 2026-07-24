@@ -62,7 +62,7 @@ export const Sidebar: React.FC = () => {
       )}
     >
       {/* Brand Header */}
-      <div className="flex h-16 items-center justify-between px-4 border-b border-slate-800">
+      <div className="flex h-20 items-center justify-between px-4 border-b border-slate-800">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400">
             <svg viewBox="0 0 24 24" className="h-5.5 w-5.5 fill-current" fill="currentColor">
