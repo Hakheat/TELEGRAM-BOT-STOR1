@@ -38,7 +38,8 @@ export default function LoginPage() {
       router.push("/");
     } catch (err: any) {
       if (err.code === "ERR_NETWORK" || !err.response) {
-        setError("Cannot connect to Backend Server (http://localhost:8000). Please make sure backend is running!");
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://telegram-bot-stor1.onrender.com/api/v1";
+        setError(`Cannot connect to Backend Server (${apiUrl}). Please make sure the backend is running and CORS is configured!`);
       } else {
         setError(err.response?.data?.detail || "Invalid credentials. Please try again.");
       }
