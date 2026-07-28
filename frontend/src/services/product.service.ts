@@ -12,6 +12,15 @@ export const productService = {
     return res.data;
   },
 
+  async updateCategory(id: number, data: Partial<Category>): Promise<Category> {
+    const res = await apiClient.put<Category>(`/products/categories/${id}`, data);
+    return res.data;
+  },
+
+  async deleteCategory(id: number): Promise<void> {
+    await apiClient.delete(`/products/categories/${id}`);
+  },
+
   async getProducts(): Promise<Product[]> {
     const res = await apiClient.get<Product[]>("/products");
     return res.data;

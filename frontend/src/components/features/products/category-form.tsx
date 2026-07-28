@@ -1,26 +1,46 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { productService } from "@/services/product.service";
+import { Category } from "@/types/product.types";
 
 interface CategoryFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  editCategory?: Category | null;
 }
 
 export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
   isOpen,
   onClose,
   onSuccess,
+  editCategory = null,
 }) => {
   const [name, setName] = useState<string>("");
   const [icon, setIcon] = useState<string>("📁");
   const [description, setDescription] = useState<string>("");
+  const [isActive, setIsActive] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
+
+  const isEditMode = !!editCategory;
+
+  useEffect(() => {
+    if (editCategory) {
+      setName(editCategory.name || "");
+      setIcon(editCategory.icon || "📁");
+      setDescription(editCategory.description || "");
+      setIsActive(editCategory.is_active ?? true);
+    } else {
+      setName("");
+      setIcon("📁");
+      setDescription("");
+      setIsActive(true);
+    }
+  }, [editCategory, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,20 +48,25 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 
     setLoading(true);
     try {
-      await productService.createCategory({
-        name,
-        icon,
-        description,
-        is_active: true,
-      });
+      if (isEditMode && editCategory) {
+        await productService.updateCategory(editCategory.id, {
+          name,
+          icon,
+          description,
+          is_active: isActive,
+        });
+      } else {
+        await productService.createCategory({
+          name,
+          icon,
+          description,
+          is_active: isActive,
+        });
+      }
       onSuccess();
       onClose();
-      // Reset form fields
-      setName("");
-      setIcon("📁");
-      setDescription("");
     } catch (err) {
-      alert("Failed to save category.");
+      alert(isEditMode ? "Failed to update category." : "Failed to create category.");
     } finally {
       setLoading(false);
     }
@@ -51,7 +76,7 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="📁 Add New Category"
+      title={isEditMode ? `✏️ Edit Category — ${editCategory?.name}` : "📁 Add New Category"}
     >
       <form onSubmit={handleSubmit} className="space-y-4 font-kantumruy-pro">
         <div className="grid grid-cols-4 gap-4">
@@ -87,12 +112,34 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
           />
         </div>
 
+        <div className="flex items-center gap-3">
+          <label className="text-xs font-semibold text-slate-300">Active Status:</label>
+          <button
+            type="button"
+            onClick={() => setIsActive(!isActive)}
+            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+              isActive ? "bg-emerald-500" : "bg-slate-600"
+            }`}
+          >
+            <span
+              className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                isActive ? "translate-x-5" : "translate-x-1"
+              }`}
+            />
+          </button>
+          <span className={`text-xs font-medium ${isActive ? "text-emerald-400" : "text-slate-500"}`}>
+            {isActive ? "Active" : "Inactive"}
+          </span>
+        </div>
+
         <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
           <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
           <Button type="submit" variant="primary" disabled={loading || !name.trim()}>
-            {loading ? "Creating..." : "Create Category"}
+            {loading
+              ? isEditMode ? "Saving..." : "Creating..."
+              : isEditMode ? "Save Changes" : "Create Category"}
           </Button>
         </div>
       </form>

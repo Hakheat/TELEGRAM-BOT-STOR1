@@ -4,60 +4,67 @@ from app.db.models.product import Category, Product
 
 
 def get_categories_inline_keyboard(categories: List[Category]) -> InlineKeyboardMarkup:
-    builder: List[List[InlineKeyboardButton]] = []
+    """Render categories as 2-column grid of inline buttons."""
+    buttons = []
     for cat in categories:
         icon = cat.icon or "📦"
         button_text = f"{icon} {cat.name}"
-        builder.append([InlineKeyboardButton(text=button_text, callback_data=f"cat:{cat.id}")])
+        buttons.append(InlineKeyboardButton(text=button_text, callback_data=f"cat:{cat.id}"))
+
+    builder: List[List[InlineKeyboardButton]] = []
+    for i in range(0, len(buttons), 2):
+        builder.append(buttons[i:i+2])
 
     return InlineKeyboardMarkup(inline_keyboard=builder)
 
 
+
 def get_products_paginated_keyboard(
-    products_with_stock: List[Tuple[Product, int]],
+    current_items: List[Tuple[Product, int]],
     category_id: int,
-    page: int = 1,
-    per_page: int = 5,
+    page: int,
+    total_pages: int,
     lang: str = "km",
 ) -> InlineKeyboardMarkup:
     """
-    Renders product items with dynamic page pagination controls.
+    Renders product items in a 2-column grid with custom navigation controls.
     """
-    from app.bot.utils.localization import get_text
-    
-    total_items = len(products_with_stock)
-    total_pages = max(1, (total_items + per_page - 1) // per_page)
-    page = max(1, min(page, total_pages))
- 
-    start_idx = (page - 1) * per_page
-    end_idx = start_idx + per_page
-    current_items = products_with_stock[start_idx:end_idx]
- 
     rows: List[List[InlineKeyboardButton]] = []
- 
-    # Product list buttons
+    
+    # 1. Product grid (2 columns)
+    product_buttons = []
     for prod, stock in current_items:
-        stock_badge = get_text(lang, "stock_available", count=stock) if stock > 0 else get_text(lang, "stock_empty")
-        btn_text = f"{prod.title} - ${prod.price:.2f} {stock_badge}"
-        rows.append([InlineKeyboardButton(text=btn_text, callback_data=f"prod:{prod.id}")])
- 
-    # Pagination navigation controls
-    nav_row: List[InlineKeyboardButton] = []
-    if page > 1:
-        prev_text = "⬅️ Previous" if lang == "en" else "⬅️ មុន"
-        nav_row.append(InlineKeyboardButton(text=prev_text, callback_data=f"cat_page:{category_id}:{page - 1}"))
- 
-    nav_row.append(InlineKeyboardButton(text=f"📄 {page}/{total_pages}", callback_data="noop"))
- 
-    if page < total_pages:
-        next_text = "Next ➡️" if lang == "en" else "បន្ទាប់ ➡️"
-        nav_row.append(InlineKeyboardButton(text=next_text, callback_data=f"cat_page:{category_id}:{page + 1}"))
- 
-    rows.append(nav_row)
- 
-    # Back to Categories button
-    rows.append([InlineKeyboardButton(text=get_text(lang, "back_to_categories_btn"), callback_data="back_to_categories")])
- 
+        btn_label = prod.title
+        if stock <= 0:
+            out_of_stock_text = "អស់ពីស្តុក" if lang == "km" else "Out of stock"
+            btn_label += f" | {out_of_stock_text}"
+            
+        if len(btn_label) > 28:
+            btn_label = btn_label[:25] + "..."
+            
+        product_buttons.append(InlineKeyboardButton(text=btn_label, callback_data=f"prod:{prod.id}"))
+        
+    for i in range(0, len(product_buttons), 2):
+        rows.append(product_buttons[i:i+2])
+        
+    # 2. More products button (Next page)
+    if total_pages > 1:
+        next_page = page + 1 if page < total_pages else 1
+        more_text = "✈️ ទំនិញផ្សេងទៀត" if lang == "km" else "✈️ More Products"
+        rows.append([InlineKeyboardButton(text=more_text, callback_data=f"cat_page:{category_id}:{next_page}")])
+        
+    # 3. Refresh and Categories buttons
+    refresh_text = "🔄 ធ្វើបច្ចុប្បន្នភាព" if lang == "km" else "🔄 Refresh"
+    categories_text = "📂 ជំពូកផលិតផល" if lang == "km" else "📂 Categories"
+    rows.append([
+        InlineKeyboardButton(text=refresh_text, callback_data=f"cat_page:{category_id}:{page}"),
+        InlineKeyboardButton(text=categories_text, callback_data="back_to_categories")
+    ])
+    
+    # 4. Back button
+    back_text = "« ត្រឡប់ក្រោយ" if lang == "km" else "« Back"
+    rows.append([InlineKeyboardButton(text=back_text, callback_data="back_to_categories")])
+    
     return InlineKeyboardMarkup(inline_keyboard=rows)
  
  
@@ -103,23 +110,11 @@ def get_topup_preset_keyboard() -> InlineKeyboardMarkup:
 
 
 def get_insufficient_balance_keyboard(product_id: int, price: float, telegram_id: int, lang: str = "km") -> InlineKeyboardMarkup:
-    import urllib.parse
-    from decimal import Decimal
-    from app.services.payment_service import PaymentService
-    
-    khqr_string = PaymentService.generate_khqr_payload(telegram_id, Decimal(str(price)))
-    encoded_code = urllib.parse.quote(khqr_string)
-    aba_pay_url = f"https://link.bakong.org.kh/pay?code={encoded_code}"
-    
-    aba_pay_btn_text = "🏦 ABA Pay (Direct App)"
     show_qr_btn_text = "🇰🇭 Show Bakong KHQR" if lang == "en" else "🇰🇭 បង្ហាញ Bakong KHQR"
     back_btn_text = "🔙 Back" if lang == "en" else "🔙 ត្រឡប់ក្រោយ"
     
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [
-                InlineKeyboardButton(text=aba_pay_btn_text, url=aba_pay_url),
-            ],
             [
                 InlineKeyboardButton(text=show_qr_btn_text, callback_data=f"show_buy_qr:{product_id}:{price}"),
             ],

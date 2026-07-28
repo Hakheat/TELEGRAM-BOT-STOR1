@@ -6,6 +6,7 @@ from app.db.repositories.product_repository import ProductRepository
 from app.db.models.product import Category, Product
 from app.schemas.product import (
     CategoryCreate,
+    CategoryUpdate,
     CategoryResponse,
     ProductCreate,
     ProductResponse,
@@ -34,6 +35,38 @@ async def create_category(
     repo = ProductRepository(db)
     cat = Category(**payload.model_dump())
     return await repo.create_category(cat)
+
+
+@router.put("/categories/{category_id}", response_model=CategoryResponse)
+async def update_category(
+    category_id: int,
+    payload: CategoryUpdate,
+    db: AsyncSession = Depends(get_db),
+    admin=Depends(get_current_admin),
+):
+    repo = ProductRepository(db)
+    cat = await repo.get_category_by_id(category_id)
+    if not cat:
+        raise HTTPException(status_code=404, detail="Category not found")
+    data = payload.model_dump(exclude_unset=True)
+    for key, val in data.items():
+        setattr(cat, key, val)
+    await db.flush()
+    return cat
+
+
+@router.delete("/categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_category(
+    category_id: int,
+    db: AsyncSession = Depends(get_db),
+    admin=Depends(get_current_admin),
+):
+    repo = ProductRepository(db)
+    cat = await repo.get_category_by_id(category_id)
+    if not cat:
+        raise HTTPException(status_code=404, detail="Category not found")
+    await db.delete(cat)
+    await db.flush()
 
 
 # Product Endpoints

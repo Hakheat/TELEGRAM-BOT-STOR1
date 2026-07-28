@@ -64,6 +64,8 @@ async def category_page_handler(callback: CallbackQuery, session: AsyncSession, 
 
 
 async def show_category_products(callback: CallbackQuery, session: AsyncSession, category_id: int, db_user: User, page: int):
+    from datetime import datetime, timedelta, timezone as dt_timezone
+    
     lang = db_user.language_code or "km"
     product_repo = ProductRepository(session)
     category = await product_repo.get_category_by_id(category_id)
@@ -83,18 +85,58 @@ async def show_category_products(callback: CallbackQuery, session: AsyncSession,
         text = get_text(lang, "no_products", icon=category.icon or "📦", name=category.name)
         await callback.message.edit_text(
             text,
-            reply_markup=get_products_paginated_keyboard([], category_id, page=1, lang=lang),
+            reply_markup=get_products_paginated_keyboard([], category_id, page=1, total_pages=1, lang=lang),
         )
         return
 
-    desc = category.description or get_text(lang, "select_product_prompt")
-    text = (
-        f"<b>{category.icon or '📦'} {category.name}</b>\n"
-        f"{desc}\n\n"
-        f"<i>{get_text(lang, 'click_product_desc')}</i>"
+    # Pagination calculation
+    per_page = 15  # 15 items per page
+    total_items = len(products_with_stock)
+    total_pages = max(1, (total_items + per_page - 1) // per_page)
+    page = max(1, min(page, total_pages))
+
+    start_idx = (page - 1) * per_page
+    end_idx = start_idx + per_page
+    current_items = products_with_stock[start_idx:end_idx]
+
+    # Time in Cambodia (UTC+7)
+    cambodia_time = datetime.now(dt_timezone.utc) + timedelta(hours=7)
+    local_time = cambodia_time.strftime("%I:%M:%S %p")
+
+    # Construct formatted product list text
+    title_text = "បញ្ជីផលិតផល (PRODUCT LIST)" if lang == "km" else "PRODUCT LIST"
+    balance_label = "សមតុល្យ" if lang == "km" else "Balance"
+    update_label = "ធ្វើបច្ចុប្បន្នភាព" if lang == "km" else "Updated"
+    terms_text = (
+        "⚠️ ផលិតផលឌីជីថល - មិនអាចធ្វើសងប្រាក់វិញបានទេក្រោយពេលដឹកជញ្ជូន។"
+        if lang == "km"
+        else "⚠️ Digital products - Non-refundable after delivery."
     )
 
-    kb = get_products_paginated_keyboard(products_with_stock, category_id, page=page, lang=lang)
+    text = (
+        f"🛍️ <b>{title_text}</b>\n\n"
+        f"💰 <b>{balance_label}:</b> <code>${db_user.balance:.2f} USD</code>\n"
+        f"🕒 <b>{update_label}:</b> <code>{local_time}</code>\n"
+        f"⚠️ <b>{terms_text}</b>\n"
+        f"--------------------------------------------------\n"
+    )
+
+    product_lines = []
+    for idx, (prod, stock) in enumerate(current_items, start=start_idx + 1):
+        line = f"{idx}. {prod.title} — ${prod.price:.2f}"
+        if stock > 0:
+            line += f" 🟢 {stock}"
+        product_lines.append(line)
+
+    text += "\n".join(product_lines)
+
+    kb = get_products_paginated_keyboard(
+        current_items=current_items,
+        category_id=category_id,
+        page=page,
+        total_pages=total_pages,
+        lang=lang
+    )
     await callback.message.edit_text(text, reply_markup=kb)
 
 
