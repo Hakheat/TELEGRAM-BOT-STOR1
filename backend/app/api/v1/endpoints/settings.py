@@ -11,22 +11,10 @@ router = APIRouter(prefix="/settings", tags=["Settings"])
 
 class SettingsUpdate(BaseModel):
     bot_token: str = Field(..., description="The Telegram Bot Token")
-    khqr_merchant_name: str = Field(..., description="Bakong KHQR Merchant Name")
-    khqr_merchant_city: str = Field(..., description="Bakong KHQR Merchant City")
-    khqr_account_number: str = Field(..., description="Bakong KHQR Account Number")
-    aba_account_name: str = Field(..., description="ABA Bank Account Name")
-    aba_account_number: str = Field(..., description="ABA Bank Account Number")
-    aba_qr_link: str = Field(..., description="ABA Direct QR Link")
 
 
 class SettingsResponse(BaseModel):
     bot_token: str
-    khqr_merchant_name: str
-    khqr_merchant_city: str
-    khqr_account_number: str
-    aba_account_name: str
-    aba_account_number: str
-    aba_qr_link: str
 
 
 def update_env_variable(key: str, value: str):
@@ -58,12 +46,6 @@ def update_env_variable(key: str, value: str):
 async def get_settings(admin=Depends(get_current_admin)):
     return SettingsResponse(
         bot_token=settings.BOT_TOKEN,
-        khqr_merchant_name=settings.KHQR_MERCHANT_NAME,
-        khqr_merchant_city=settings.KHQR_MERCHANT_CITY,
-        khqr_account_number=settings.KHQR_ACCOUNT_NUMBER,
-        aba_account_name=settings.ABA_ACCOUNT_NAME,
-        aba_account_number=settings.ABA_ACCOUNT_NUMBER,
-        aba_qr_link=settings.ABA_QR_LINK,
     )
 
 
@@ -71,38 +53,18 @@ async def get_settings(admin=Depends(get_current_admin)):
 async def update_settings(payload: SettingsUpdate, admin=Depends(get_current_admin)):
     try:
         token = payload.bot_token.strip()
-        merchant_name = payload.khqr_merchant_name.strip()
-        merchant_city = payload.khqr_merchant_city.strip()
-        account_number = payload.khqr_account_number.strip()
-        aba_name = payload.aba_account_name.strip()
-        aba_num = payload.aba_account_number.strip()
-        aba_qr = payload.aba_qr_link.strip()
 
-        if not token or not merchant_name or not merchant_city or not account_number or not aba_name or not aba_num or not aba_qr:
+        if not token:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="All configuration parameters are required",
+                detail="Bot Token is required",
             )
 
         # 1. Update .env file
         try:
             update_env_variable("BOT_TOKEN", token)
-            update_env_variable("KHQR_MERCHANT_NAME", merchant_name)
-            update_env_variable("KHQR_MERCHANT_CITY", merchant_city)
-            update_env_variable("KHQR_ACCOUNT_NUMBER", account_number)
-            update_env_variable("ABA_ACCOUNT_NAME", aba_name)
-            update_env_variable("ABA_ACCOUNT_NUMBER", aba_num)
-            update_env_variable("ABA_QR_LINK", aba_qr)
         except Exception as e:
             raise Exception(f"Failed to update config (.env) file. Please check file write permissions. Error: {str(e)}")
-
-        # Update in-memory configuration settings
-        settings.KHQR_MERCHANT_NAME = merchant_name
-        settings.KHQR_MERCHANT_CITY = merchant_city
-        settings.KHQR_ACCOUNT_NUMBER = account_number
-        settings.ABA_ACCOUNT_NAME = aba_name
-        settings.ABA_ACCOUNT_NUMBER = aba_num
-        settings.ABA_QR_LINK = aba_qr
 
         # 2. Reload the bot with the new token
         try:
@@ -120,12 +82,6 @@ async def update_settings(payload: SettingsUpdate, admin=Depends(get_current_adm
 
     return SettingsResponse(
         bot_token=settings.BOT_TOKEN,
-        khqr_merchant_name=settings.KHQR_MERCHANT_NAME,
-        khqr_merchant_city=settings.KHQR_MERCHANT_CITY,
-        khqr_account_number=settings.KHQR_ACCOUNT_NUMBER,
-        aba_account_name=settings.ABA_ACCOUNT_NAME,
-        aba_account_number=settings.ABA_ACCOUNT_NUMBER,
-        aba_qr_link=settings.ABA_QR_LINK,
     )
 
 
