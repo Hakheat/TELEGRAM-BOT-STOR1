@@ -97,7 +97,7 @@ async def execute_purchase_handler(callback: CallbackQuery, session: AsyncSessio
             balance=db_user.balance,
         )
         from app.bot.keyboards.inline import get_insufficient_balance_keyboard
-        kb = get_insufficient_balance_keyboard(product_id, float(price), db_user.telegram_id)
+        kb = get_insufficient_balance_keyboard(product_id, float(price), db_user.telegram_id, lang)
         
         await callback.message.edit_text(text, reply_markup=kb)
         await callback.answer()

@@ -24,7 +24,24 @@ async def reload_bot(new_token: str):
 
     # Update settings and bot instance token
     settings.BOT_TOKEN = new_token
-    bot.token = new_token
+    
+    # Safely modify the read-only token attribute in aiogram 3 Bot (using name mangling)
+    try:
+        if hasattr(bot, "_Bot__token"):
+            bot._Bot__token = new_token
+        elif hasattr(bot, "_token"):
+            bot._token = new_token
+        else:
+            bot = Bot(
+                token=new_token,
+                default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+            )
+    except Exception as e:
+        logger.error(f"Error patching bot token: {e}")
+        bot = Bot(
+            token=new_token,
+            default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+        )
 
     # If the bot was previously running in long-polling mode, stop and restart it
     if bot_task and not bot_task.done():

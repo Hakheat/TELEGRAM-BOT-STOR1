@@ -45,10 +45,10 @@ TRANSLATIONS = {
             "<b>⚠️ តុល្យភាពគណនីមិនគ្រប់គ្រាន់ទេ! (Insufficient Balance)</b>\n\n"
             "💵 <b>តម្លៃទំនិញ:</b> <code>${price:.2f}</code>\n"
             "💳 <b>តុល្យភាពបច្ចុប្បន្ន:</b> <code>${balance:.2f}</code>\n\n"
-            "សូមចុចប៊ូតុងខាងក្រោមដើម្បីទូទាត់ប្រាក់ដោយផ្ទាល់តាម <b>ABA App (ABA Pay)</b> ឬបង្ហាញ <b>QR Code</b> សម្រាប់ស្កេន៖"
+            "សូមចុចប៊ូតុងខាងក្រោមដើម្បីទូទាត់ប្រាក់ដោយផ្ទាល់តាម <b>ABA App (ABA Pay)</b> ឬបង្ហាញ <b>Bakong KHQR</b> សម្រាប់ស្កេន៖"
         ),
         "aba_pay_btn": "🏦 ABA Pay (Direct App)",
-        "show_qr_btn": "📸 បង្ហាញ QR Code",
+        "show_qr_btn": "🇰🇭 បង្ហាញ Bakong KHQR",
         "direct_qr_title": (
             "<b>🇰🇭 KHQR / 🏦 ABA ទូទាត់ប្រាក់ផ្ទាល់</b>\n\n"
             "👤 Telegram ID: <code>{telegram_id}</code>\n"
@@ -152,10 +152,10 @@ TRANSLATIONS = {
             "<b>⚠️ Insufficient Account Balance!</b>\n\n"
             "💵 <b>Product Price:</b> <code>${price:.2f}</code>\n"
             "💳 <b>Your Balance:</b> <code>${balance:.2f}</code>\n\n"
-            "Please click below to pay directly via <b>ABA Mobile (ABA Pay)</b> or display <b>QR Code</b> to scan:"
+            "Please click below to pay directly via <b>ABA Mobile (ABA Pay)</b> or display <b>Bakong KHQR</b> to scan:"
         ),
         "aba_pay_btn": "🏦 ABA Pay (Direct App)",
-        "show_qr_btn": "📸 Show QR Code",
+        "show_qr_btn": "🇰🇭 Show Bakong KHQR",
         "direct_qr_title": (
             "<b>🇰🇭 Direct KHQR / 🏦 ABA Payment</b>\n\n"
             "👤 Telegram ID: <code>{telegram_id}</code>\n"

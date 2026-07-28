@@ -102,7 +102,7 @@ def get_topup_preset_keyboard() -> InlineKeyboardMarkup:
     )
 
 
-def get_insufficient_balance_keyboard(product_id: int, price: float, telegram_id: int) -> InlineKeyboardMarkup:
+def get_insufficient_balance_keyboard(product_id: int, price: float, telegram_id: int, lang: str = "km") -> InlineKeyboardMarkup:
     import urllib.parse
     from decimal import Decimal
     from app.services.payment_service import PaymentService
@@ -111,16 +111,20 @@ def get_insufficient_balance_keyboard(product_id: int, price: float, telegram_id
     encoded_code = urllib.parse.quote(khqr_string)
     aba_pay_url = f"https://link.bakong.org.kh/pay?code={encoded_code}"
     
+    aba_pay_btn_text = "🏦 ABA Pay (Direct App)"
+    show_qr_btn_text = "🇰🇭 Show Bakong KHQR" if lang == "en" else "🇰🇭 បង្ហាញ Bakong KHQR"
+    back_btn_text = "🔙 Back" if lang == "en" else "🔙 ត្រឡប់ក្រោយ"
+    
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                InlineKeyboardButton(text="🏦 ABA Pay (Direct App)", url=aba_pay_url),
+                InlineKeyboardButton(text=aba_pay_btn_text, url=aba_pay_url),
             ],
             [
-                InlineKeyboardButton(text="📸 បង្ហាញ QR Code", callback_data=f"show_buy_qr:{product_id}:{price}"),
+                InlineKeyboardButton(text=show_qr_btn_text, callback_data=f"show_buy_qr:{product_id}:{price}"),
             ],
             [
-                InlineKeyboardButton(text="🔙 ត្រឡប់ក្រោយ", callback_data=f"prod:{product_id}"),
+                InlineKeyboardButton(text=back_btn_text, callback_data=f"prod:{product_id}"),
             ]
         ]
     )
