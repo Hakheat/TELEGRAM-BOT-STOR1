@@ -10,10 +10,6 @@ import {
   EyeOff,
   AlertCircle,
   ArrowRight,
-  ShieldCheck,
-  Zap,
-  Layers,
-  Database,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,36 +48,34 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="w-full overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/90 shadow-2xl backdrop-blur-2xl grid grid-cols-1 lg:grid-cols-12 min-h-[580px]">
+    <div className="w-full overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl backdrop-blur-2xl grid grid-cols-1 lg:grid-cols-12 min-h-[580px]">
       
-      {/* LEFT COLUMN: Clean Login Form Panel */}
-      <div className="lg:col-span-6 p-8 sm:p-12 flex flex-col justify-between bg-slate-900/95 relative z-10">
+      {/* LEFT COLUMN: Clean Light Panel with Sharp Dark Black Text */}
+      <div className="lg:col-span-6 p-8 sm:p-12 flex flex-col justify-between bg-white text-[#0f172a] relative z-10">
         <div>
           {/* Brand Header */}
           <div className="flex items-center gap-3 mb-8">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 shadow-md shadow-blue-500/10">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 border border-blue-200 text-blue-600 shadow-sm">
               <Bot className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white tracking-wide">Store Manager Bot</h2>
-              <span className="text-[11px] font-mono text-blue-400">AUTOMATION CONTROL PANEL</span>
+              <h2 className="text-base font-extrabold text-[#0f172a] tracking-wide">Store Manager Bot</h2>
+              <span className="text-[11px] font-mono font-bold text-blue-700 tracking-wider">AUTOMATION CONTROL PANEL</span>
             </div>
           </div>
 
-          {/* Welcome Titles */}
+          {/* Welcome Titles - Sharp Crisp Dark Black Text */}
           <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#0f172a]">
               សូមស្វាគមន៍ (Welcome Back)
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1.5">
-              Please sign in to access your digital inventory & order management system.
-            </p>
+
           </div>
 
           {/* Error Banner */}
           {error && (
-            <div className="mb-6 flex items-start gap-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 p-3.5 text-xs text-rose-400 animate-in fade-in duration-200">
-              <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+            <div className="mb-6 flex items-start gap-2.5 rounded-xl bg-rose-50 border border-rose-200 p-3.5 text-xs text-rose-800 font-bold animate-in fade-in duration-200">
+              <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5 text-rose-600" />
               <span className="leading-relaxed">{error}</span>
             </div>
           )}
@@ -89,54 +83,52 @@ export default function LoginPage() {
           {/* Form Controls */}
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Email / Username</label>
+              <label className="block text-xs font-black text-[#0f172a] mb-1.5 uppercase tracking-wide">
+                Email / Username
+              </label>
               <div className="relative">
-                <User className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
+                <User className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-700 z-10" />
                 <Input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="adminhakcambodai168@gmail.com"
-                  className="pl-10 h-11 bg-slate-950/80 border-slate-800 focus:border-blue-500 text-sm"
+                  className="pl-10 h-11 bg-slate-50 border-slate-300 text-[#0f172a] font-extrabold placeholder:text-slate-400 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 text-sm rounded-xl shadow-sm transition-all"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Password</label>
+              <label className="block text-xs font-black text-[#0f172a] mb-1.5 uppercase tracking-wide">
+                Password
+              </label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
+                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-700 z-10" />
                 <Input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="pl-10 pr-10 h-11 bg-slate-950/80 border-slate-800 focus:border-blue-500 text-sm"
+                  className="pl-10 pr-10 h-11 bg-slate-50 border-slate-300 text-[#0f172a] font-extrabold placeholder:text-slate-400 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 text-sm rounded-xl shadow-sm transition-all"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-slate-500 hover:text-slate-300 transition-colors"
+                  className="absolute right-3.5 top-3.5 text-slate-700 hover:text-black transition-colors z-10"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-xs pt-1 text-slate-400">
-              <label className="flex items-center gap-2 cursor-pointer hover:text-slate-200 transition-colors">
-                <input type="checkbox" defaultChecked className="rounded border-slate-800 bg-slate-950 text-blue-600 focus:ring-blue-500 h-4 w-4" />
-                <span>Remember session</span>
-              </label>
-              <span className="text-blue-400 hover:underline cursor-pointer">Default: adminhakcambodai168@gmail.com / adminhak&168$</span>
-            </div>
+
 
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-11 mt-2 text-sm font-semibold gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-600/25 rounded-xl transition-all transform active:scale-[0.99]"
+              className="w-full h-11 mt-2 text-sm font-bold gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-600/25 rounded-xl transition-all transform active:scale-[0.99]"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -145,7 +137,7 @@ export default function LoginPage() {
                 </span>
               ) : (
                 <>
-                  <span>Sign In to Control Panel</span>
+                  <span>SIGN IN</span>
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}
@@ -153,13 +145,7 @@ export default function LoginPage() {
           </form>
         </div>
 
-        {/* Footer info */}
-        <div className="mt-8 pt-4 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
-          <span>© 2026 Store Manager Bot</span>
-          <span className="flex items-center gap-1 text-emerald-400 font-mono">
-            <ShieldCheck className="h-3.5 w-3.5" /> AES-256 Encrypted
-          </span>
-        </div>
+
       </div>
 
       {/* RIGHT COLUMN: Vibrant Automation & 3D Bot Illustration Panel */}
@@ -170,39 +156,18 @@ export default function LoginPage() {
         <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-80 h-80 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none" />
         <div className="absolute inset-0 bg-tech-grid opacity-20 pointer-events-none" />
 
-        {/* Top Badges */}
-        <div className="relative z-10 flex items-center justify-between">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md px-3.5 py-1 text-xs font-medium border border-white/15">
-            <Zap className="h-3.5 w-3.5 text-cyan-300 animate-pulse" />
-            <span>Automated Key Delivery System</span>
-          </div>
-          <div className="h-3 w-3 rounded-full bg-cyan-400 animate-ping opacity-75" />
-        </div>
-
         {/* 3D Bot / Automation Floating Graphic Illustration */}
-        <div className="relative z-10 flex flex-col items-center justify-center py-6">
+        <div className="relative z-10 flex flex-col items-center justify-center py-12 my-auto">
           <div className="relative w-full max-w-[280px] aspect-square flex items-center justify-center">
             
             {/* Ambient Glowing Aura */}
             <div className="absolute h-48 w-48 rounded-full bg-cyan-400/20 blur-3xl animate-pulse-glow" />
 
-            {/* Top Floating Isometric Block 1 */}
-            <div className="absolute -top-2 right-4 flex items-center gap-2 rounded-xl bg-white/15 border border-white/25 px-3 py-2 text-xs font-mono backdrop-blur-md shadow-xl animate-float">
-              <Database className="h-4 w-4 text-cyan-300" />
-              <span>Vault: 1,420 Keys</span>
-            </div>
-
-            {/* Bottom Floating Isometric Block 2 */}
-            <div className="absolute -bottom-2 left-2 flex items-center gap-2 rounded-xl bg-white/15 border border-white/25 px-3 py-2 text-xs font-mono backdrop-blur-md shadow-xl animate-float-delayed">
-              <Layers className="h-4 w-4 text-amber-300" />
-              <span>KHQR Auto Top-up</span>
-            </div>
-
             {/* Center Robot / Automation SVG Avatar */}
             <div className="relative animate-float z-10 flex items-center justify-center">
               <svg
                 viewBox="0 0 200 200"
-                className="w-48 h-48 drop-shadow-[0_20px_35px_rgba(0,0,0,0.4)]"
+                className="w-56 h-56 drop-shadow-[0_20px_35px_rgba(0,0,0,0.4)]"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -239,14 +204,6 @@ export default function LoginPage() {
             </div>
 
           </div>
-        </div>
-
-        {/* Bottom Feature Description */}
-        <div className="relative z-10 text-center sm:text-left space-y-1">
-          <h3 className="text-lg font-bold tracking-wide">Autonomous Store Bot Engine</h3>
-          <p className="text-xs text-blue-100/80 leading-relaxed">
-            PostgreSQL FOR UPDATE SKIP LOCKED concurrency-safe key allocation & real-time KHQR balance top-up integration.
-          </p>
         </div>
 
       </div>

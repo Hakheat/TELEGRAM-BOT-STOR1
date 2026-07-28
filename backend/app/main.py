@@ -30,7 +30,22 @@ async def lifespan(app: FastAPI):
     import app.bot.bot as bot_module
     if not settings.TELEGRAM_WEBHOOK_URL:
         # Start bot polling in background task for local dev
-        bot_module.bot_task = asyncio.create_task(dp.start_polling(bot))
+        try:
+            bot_module.bot_task = asyncio.create_task(dp.start_polling(bot))
+            print("Telegram Bot started in long polling mode.")
+        except Exception as e:
+            print(f"Error starting Telegram Bot polling: {e}")
+    else:
+        # Register Telegram Webhook on startup
+        try:
+            webhook_info = await bot.get_webhook_info()
+            if webhook_info.url != settings.TELEGRAM_WEBHOOK_URL:
+                await bot.set_webhook(url=settings.TELEGRAM_WEBHOOK_URL, drop_pending_updates=True)
+                print(f"Telegram Webhook set to: {settings.TELEGRAM_WEBHOOK_URL}")
+            else:
+                print(f"Telegram Webhook already set to: {settings.TELEGRAM_WEBHOOK_URL}")
+        except Exception as e:
+            print(f"Error setting Telegram Webhook: {e}")
 
     yield
 
@@ -79,9 +94,16 @@ for legacy_folder in [
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # CORS middleware for Next.js Admin Dashboard frontend
+origins = ["http://localhost:3000", "http://127.0.0.1:3000"]
+if settings.FRONTEND_URL:
+    if "," in settings.FRONTEND_URL:
+        origins.extend([o.strip() for o in settings.FRONTEND_URL.split(",") if o.strip()])
+    else:
+        origins.append(settings.FRONTEND_URL.strip())
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

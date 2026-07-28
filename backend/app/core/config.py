@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     HOST: str = "0.0.0.0"
     PORT: int = 8000
+    FRONTEND_URL: Optional[str] = None
 
     # Database
     POSTGRES_USER: str = "store_user"

@@ -134,17 +134,34 @@ async def upload_qr(
     file: UploadFile = File(...),
     admin=Depends(get_current_admin)
 ):
-    # Ensure static directory exists
-    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-    static_dir = os.path.join(base_dir, "app", "static")
-    os.makedirs(static_dir, exist_ok=True)
-
     file_ext = os.path.splitext(file.filename)[1].lower()
     if file_ext not in [".png", ".jpg", ".jpeg", ".webp"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid image format. Allowed formats: PNG, JPG, JPEG, WEBP"
         )
+
+    # Check if Cloudinary credentials are fully configured
+    if settings.CLOUDINARY_CLOUD_NAME and settings.CLOUDINARY_API_KEY and settings.CLOUDINARY_API_SECRET:
+        try:
+            import cloudinary
+            import cloudinary.uploader
+            cloudinary.config(
+                cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+                api_key=settings.CLOUDINARY_API_KEY,
+                api_secret=settings.CLOUDINARY_API_SECRET,
+            )
+            upload_result = cloudinary.uploader.upload(file.file, resource_type="image")
+            cloudinary_url = upload_result.get("secure_url")
+            return {"qr_link": cloudinary_url}
+        except Exception as e:
+            # Fallback to local storage if Cloudinary fails
+            pass
+
+    # Ensure static directory exists
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    static_dir = os.path.join(base_dir, "app", "static")
+    os.makedirs(static_dir, exist_ok=True)
 
     filename = f"aba_qr{file_ext}"
     file_path = os.path.join(static_dir, filename)
