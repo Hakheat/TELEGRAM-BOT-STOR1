@@ -43,4 +43,10 @@ export interface AnalyticsOverview {
     amount: number;
     created_at: string;
   }>;
+  chart_data?: Array<{
+    name: string;
+    revenue: number;
+    sales: number;
+  }>;
 }
+

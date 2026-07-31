@@ -12,7 +12,7 @@ const translations: Record<Language, Record<string, string>> = {
   en: {
     dashboard: "Dashboard",
     products: "Products",
-    stock_keys: "Stock / Keys",
+    stock_keys: "Stock  Keys",
     orders: "Orders",
     users: "Users",
     broadcast: "Broadcast",

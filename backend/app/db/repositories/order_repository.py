@@ -101,3 +101,35 @@ class OrderRepository(BaseRepository[Order]):
             "sold_today": sold_today or 0,
             "total_orders": total_orders or 0,
         }
+
+    async def get_weekly_sales_chart(self) -> List[dict]:
+        now = datetime.now(timezone.utc)
+        chart_data = []
+        for i in range(6, -1, -1):
+            day = now - timedelta(days=i)
+            day_start = datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
+            day_end = day_start + timedelta(days=1)
+            
+            stmt = select(
+                func.sum(Order.total_amount),
+                func.count(Order.id)
+            ).where(
+                Order.status == "COMPLETED",
+                Order.created_at >= day_start,
+                Order.created_at < day_end
+            )
+            res = await self.session.execute(stmt)
+            row = res.first()
+            rev, sales = 0, 0
+            if row:
+                rev = float(row[0] or 0.0)
+                sales = int(row[1] or 0)
+            
+            day_name = day.strftime("%a")
+            chart_data.append({
+                "name": day_name,
+                "revenue": rev,
+                "sales": sales
+            })
+        return chart_data
+

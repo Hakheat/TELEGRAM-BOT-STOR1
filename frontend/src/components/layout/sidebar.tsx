@@ -17,6 +17,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/store/use-sidebar-store";
 import { useLanguageStore } from "@/store/use-language-store";
+import { useCustomColorStore } from "@/store/use-custom-color-store";
+import { useThemeStore } from "@/store/use-theme-store";
 import { UserNav } from "./user-nav";
 
 const iconMap: Record<string, React.ElementType> = {
@@ -39,40 +41,72 @@ const navItems = [
   { titleKey: "settings", href: "/settings", icon: "Settings" },
 ];
 
+function isColorDark(colorHex: string) {
+  if (!colorHex) return true;
+  const hex = colorHex.replace("#", "");
+  if (hex.length !== 6) return true;
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness < 140;
+}
+
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const { isOpen, toggle } = useSidebarStore();
   const { t } = useLanguageStore();
+  const { theme } = useThemeStore();
+  const { sidebarBg } = useCustomColorStore();
+
+  const isDark = sidebarBg ? isColorDark(sidebarBg) : (theme === "dark");
 
   return (
     <aside
       className={cn(
-        "relative flex flex-col border-r border-slate-800 bg-slate-950 transition-all duration-300 text-slate-200 z-30",
-        isOpen ? "w-64" : "w-20"
+        "relative flex flex-col transition-all duration-300 z-30 border-r",
+        isOpen ? "w-64" : "w-20",
+        isDark 
+          ? "border-slate-800 bg-slate-950 text-slate-100" 
+          : "border-slate-200 bg-white text-slate-100"
       )}
+      style={sidebarBg ? { backgroundColor: sidebarBg } : undefined}
     >
       {/* Brand Header */}
-      <div className="flex h-20 items-center justify-between px-4 border-b border-slate-800">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400">
-            <svg viewBox="0 0 24 24" className="h-5.5 w-5.5 fill-current" fill="currentColor">
+      <div className={cn(
+        "flex h-20 items-center justify-between px-4 border-b",
+        isDark ? "border-slate-800" : "border-slate-200"
+      )}>
+        <div className="flex items-center gap-3.5 flex-1 min-w-0">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 via-blue-500 to-indigo-500 text-white shadow-md shadow-blue-500/20 border border-blue-400/20 transform transition-transform duration-300 hover:rotate-6 flex-shrink-0">
+            <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
               <path d="M20.665 3.717l-17.73 6.837c-1.21.486-1.203 1.161-.222 1.462l4.552 1.42 10.532-6.645c.498-.303.953-.14.578.192l-8.533 7.701-.33 4.955c.485 0 .7-.223.971-.483l2.334-2.27 4.857 3.589c.895.493 1.538.24 1.761-.828l3.19-15.027c.326-1.307-.5-1.898-1.36-1.517z" />
             </svg>
           </div>
           {isOpen && (
-            <span className="font-bold text-sm tracking-wide text-slate-100">Store Manager</span>
+            <span className={cn(
+              "font-extrabold text-[13px] uppercase tracking-wider font-sans truncate leading-none mt-0.5",
+              isDark ? "text-white" : "text-slate-100"
+            )}>
+              STORE MANAGER
+            </span>
           )}
         </div>
         <button
           onClick={toggle}
-          className="rounded-lg p-1 text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors"
+          className={cn(
+            "rounded-xl p-1.5 border transition-all duration-200 cursor-pointer active:scale-95 flex-shrink-0",
+            isDark 
+              ? "text-slate-400 hover:bg-white/10 hover:text-white border-transparent hover:border-white/10" 
+              : "text-slate-400 hover:bg-black/5 hover:text-slate-100 border-transparent hover:border-slate-200"
+          )}
         >
-          {isOpen ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+          {isOpen ? <ChevronLeft className="h-4.5 w-4.5" /> : <ChevronRight className="h-4.5 w-4.5" />}
         </button>
       </div>
 
       {/* Navigation List */}
-      <nav className="flex-1 space-y-2.5 p-3.5">
+      <nav className="flex-1 space-y-2 p-3.5">
         {navItems.map((item) => {
           const Icon = iconMap[item.icon] || Package;
           const isActive = pathname === item.href;
@@ -82,30 +116,38 @@ export const Sidebar: React.FC = () => {
               key={item.href}
               href={item.href}
               className={cn(
-                "group relative flex items-center gap-3.5 rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-300 ease-out transform active:scale-[0.98]",
+                "group relative flex items-center gap-3.5 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 ease-out transform active:scale-[0.98]",
                 isActive
-                  ? "bg-gradient-to-r from-[#071435] via-[#091a45] to-[#071435] text-blue-400 border border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.28)] scale-[1.01]"
-                  : "bg-slate-900/40 text-slate-300 border border-slate-800/80 hover:border-blue-500/60 hover:bg-[#071435]/90 hover:text-blue-400 hover:scale-[1.015] hover:shadow-[0_0_15px_rgba(59,130,246,0.2)]"
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 scale-[1.01]"
+                  : isDark
+                    ? "bg-transparent text-white/60 hover:bg-white/5 hover:text-white border border-transparent hover:border-white/5 hover:scale-[1.01]"
+                    : "bg-transparent text-slate-300 hover:bg-black/5 hover:text-slate-100 border border-transparent hover:border-black/5 hover:scale-[1.01]"
               )}
             >
               {/* Active Ambient Glow Effect */}
               {isActive && (
-                <div className="absolute inset-0 rounded-2xl bg-blue-500/10 blur-sm pointer-events-none" />
+                <div className="absolute inset-0 rounded-xl bg-blue-500/10 blur-sm pointer-events-none" />
               )}
 
               <Icon
                 className={cn(
                   "h-5 w-5 flex-shrink-0 transition-all duration-300 group-hover:scale-110",
                   isActive
-                    ? "text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]"
-                    : "text-slate-400 group-hover:text-blue-400 group-hover:drop-shadow-[0_0_6px_rgba(96,165,250,0.6)]"
+                    ? "text-white"
+                    : isDark
+                      ? "text-white/60 group-hover:text-white"
+                      : "text-slate-400 group-hover:text-slate-100"
                 )}
               />
               {isOpen && (
                 <span
                   className={cn(
-                    "transition-colors duration-300 tracking-wide",
-                    isActive ? "text-blue-400 font-bold" : "group-hover:text-blue-300 font-semibold"
+                    "transition-colors duration-300 tracking-wide font-semibold",
+                    isActive 
+                      ? "text-white font-bold" 
+                      : isDark
+                        ? "text-white/60 group-hover:text-white"
+                        : "text-slate-300 group-hover:text-slate-100"
                   )}
                 >
                   {t(item.titleKey)}
@@ -117,8 +159,11 @@ export const Sidebar: React.FC = () => {
       </nav>
 
       {/* User profile / UserNav at the bottom */}
-      <div className="p-3.5 border-t border-slate-800/80">
-        <UserNav />
+      <div className={cn(
+        "p-3.5 border-t",
+        isDark ? "border-slate-800/80" : "border-slate-200"
+      )}>
+        <UserNav isDark={isDark} />
       </div>
     </aside>
   );
