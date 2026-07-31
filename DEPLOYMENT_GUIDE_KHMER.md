@@ -106,6 +106,27 @@ Render នឹងដំណើរការ FastAPI Application និង Telegram 
 
 ---
 
+## 💡 គន្លឹះពិសេស៖ ការពារកុំឱ្យ Render backend គេងលក់ (Prevent Render Free Tier from Sleeping)
+
+**បញ្ហា៖** ដោយសារតែយើងប្រើប្រាស់ Render Free Tier វានឹងផ្អាកដំណើរការ (Inactive/Sleep) ដោយស្វ័យប្រវត្ត ប្រសិនបើគ្មានសកម្មភាពណាមួយលើសពី **១៥ នាទី**។ នេះធ្វើឱ្យអតិថិជនផ្ញើសារ ឬបើក App លើកដំបូងមានការយឺតយ៉ាវ (ត្រូវរង់ចាំ ៥០ វិនាទីទៅ ១ នាទី ដើម្បីឱ្យ Render ដំណើរការឡើងវិញ)។
+
+**ដំណោះស្រាយ៖** យើងត្រូវប្រើប្រាស់សេវាកម្ម Cron Job ពីខាងក្រៅ ដើម្បីផ្ញើ HTTP Request ទៅកាន់ Backend របស់យើងជាប្រចាំ (រៀងរាល់ ១០ នាទីម្តង) ដើម្បីឱ្យវារត់រហូតមិន Sleep។
+
+### ជំហានទី ៤.១៖ ការកំណត់នៅលើ cron-job.org (ឥតគិតថ្លៃ ១០០%)
+1. ចូលទៅកាន់គេហទំព័រ [cron-job.org](https://cron-job.org) រួចចុះឈ្មោះបង្កើត Account (ឥតគិតថ្លៃ)។
+2. នៅលើ Dashboard ចុចប៊ូតុង **Create Cronjob**។
+3. បំពេញព័ត៌មានដូចខាងក្រោម៖
+   - **Title**: `Keep Backend Alive` (ឬឈ្មោះអ្វីក៏បាន)
+   - **Address (URL)**: ដាក់ URL នៃ Endpoint `/health` របស់ Backend Render របស់អ្នក ឧទាហរណ៍៖
+     `https://your-render-app-url.onrender.com/health` (ប្តូរ `your-render-app-url` ទៅជា URL ពិតប្រាកដរបស់ Render backend របស់អ្នក)
+   - **Request Method**: `GET`
+   - **Schedule**: ជ្រើសរើសយក `User-defined` ➔ `Every 10 minutes` (រៀងរាល់ ១០ នាទី)
+4. ចុចប៊ូតុង **Create** ពណ៌បៃតងនៅខាងក្រោម។
+
+ឥឡូវនេះ ប្រព័ន្ធ Cron-job នឹងធ្វើការ Ping ទៅកាន់ Backend របស់អ្នករៀងរាល់ ១០ នាទីម្តង ដែលធ្វើឱ្យ Render មិន Sleep ឡើយ ហើយ Bot និង Admin panel របស់អ្នកនឹងដំណើរការយ៉ាងលឿនជានិច្ច!
+
+---
+
 ## 🛠️ ជំហានទី ៥: Deploy Frontend (Next.js) ទៅកាន់ Vercel
 Vercel គឺជាជម្រើសដ៏ល្អបំផុតសម្រាប់ Hosting Next.js។
 

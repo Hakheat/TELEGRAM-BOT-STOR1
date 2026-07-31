@@ -80,35 +80,24 @@ class OrderRepository(BaseRepository[Order]):
         now = datetime.now(timezone.utc)
         today_start = datetime(now.year, now.month, now.day, tzinfo=timezone.utc)
 
-        # Revenue today
-        stmt_rev_today = select(func.sum(Order.total_amount)).where(
-            Order.created_at >= today_start,
-            Order.status == "COMPLETED",
-        )
-        rev_today_res = await self.session.execute(stmt_rev_today)
-        revenue_today = rev_today_res.scalar_one() or Decimal("0.00")
+        from sqlalchemy import case
+        stmt = select(
+            func.sum(case((Order.created_at >= today_start, Order.total_amount), else_=0)),
+            func.sum(Order.total_amount),
+            func.count(case((Order.created_at >= today_start, Order.id), else_=None)),
+            func.count(Order.id)
+        ).where(Order.status == "COMPLETED")
 
-        # Total revenue all time
-        stmt_rev_total = select(func.sum(Order.total_amount)).where(Order.status == "COMPLETED")
-        rev_total_res = await self.session.execute(stmt_rev_total)
-        total_revenue = rev_total_res.scalar_one() or Decimal("0.00")
-
-        # Orders sold today
-        stmt_sold_today = select(func.count(Order.id)).where(
-            Order.created_at >= today_start,
-            Order.status == "COMPLETED",
-        )
-        sold_today_res = await self.session.execute(stmt_sold_today)
-        sold_today = sold_today_res.scalar_one() or 0
-
-        # Total orders all time
-        stmt_sold_total = select(func.count(Order.id)).where(Order.status == "COMPLETED")
-        sold_total_res = await self.session.execute(stmt_sold_total)
-        total_orders = sold_total_res.scalar_one() or 0
+        res = await self.session.execute(stmt)
+        row = res.first()
+        if row:
+            revenue_today, total_revenue, sold_today, total_orders = row
+        else:
+            revenue_today, total_revenue, sold_today, total_orders = 0, 0, 0, 0
 
         return {
-            "revenue_today": float(revenue_today),
-            "total_revenue": float(total_revenue),
-            "sold_today": sold_today,
-            "total_orders": total_orders,
+            "revenue_today": float(revenue_today or 0.0),
+            "total_revenue": float(total_revenue or 0.0),
+            "sold_today": sold_today or 0,
+            "total_orders": total_orders or 0,
         }

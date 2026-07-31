@@ -15,8 +15,18 @@ async def lifespan(app: FastAPI):
     # Auto-create all missing database tables on startup (PostgreSQL/Supabase & SQLite)
     from app.db.models import Base
     from app.core.database import engine
+    from sqlalchemy import text
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        
+        # Ensure database index on orders(created_at) is created for maximum performance
+        try:
+            await conn.execute(text("CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_orders_created_at ON orders (created_at);"))
+        except Exception:
+            try:
+                await conn.execute(text("CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders (created_at);"))
+            except Exception:
+                pass
 
     # Startup actions
     await init_redis()

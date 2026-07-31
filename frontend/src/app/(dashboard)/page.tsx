@@ -7,6 +7,7 @@ import { LiveFeed } from "@/components/features/analytics/live-feed";
 import { useLiveAnalytics } from "@/hooks/use-websocket";
 import { formatCurrency } from "@/lib/utils";
 import { useLanguageStore } from "@/store/use-language-store";
+import { useThemeStore } from "@/store/use-theme-store";
 import {
   AreaChart,
   Area,
@@ -30,6 +31,7 @@ const sampleChartData = [
 export default function DashboardPage() {
   const { data, loading } = useLiveAnalytics(4000);
   const { t } = useLanguageStore();
+  const { theme } = useThemeStore();
 
   const todayRevenue = data?.today_revenue ?? 0.0;
   const soldToday = data?.sold_today ?? 0;
@@ -127,16 +129,16 @@ export default function DashboardPage() {
                       <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-                  <XAxis dataKey="name" stroke="#6b7280" fontSize={11} />
-                  <YAxis stroke="#6b7280" fontSize={11} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={theme === "dark" ? "#1f2937" : "#e2e8f0"} />
+                  <XAxis dataKey="name" stroke={theme === "dark" ? "#6b7280" : "#475569"} fontSize={11} />
+                  <YAxis stroke={theme === "dark" ? "#6b7280" : "#475569"} fontSize={11} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "#0f172a",
-                      borderColor: "#1e293b",
+                      backgroundColor: theme === "dark" ? "#0f172a" : "#ffffff",
+                      borderColor: theme === "dark" ? "#1e293b" : "#e2e8f0",
                       borderRadius: "0.5rem",
                       fontSize: "12px",
-                      color: "#f8fafc",
+                      color: theme === "dark" ? "#f8fafc" : "#0f172a",
                     }}
                   />
                   <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorRev)" />

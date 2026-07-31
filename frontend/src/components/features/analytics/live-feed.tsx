@@ -20,12 +20,12 @@ export const LiveFeed: React.FC<LiveFeedProps> = ({ feedItems, loading = false }
     <div className="flex flex-col h-full rounded-xl border border-slate-800 bg-slate-900/60 p-5 shadow-lg">
       <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
             <Activity className="h-4 w-4 animate-pulse" />
           </div>
           <h3 className="text-sm font-semibold text-slate-100">⚡ Live Bot Orders Activity</h3>
         </div>
-        <span className="text-[10px] font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
+        <span className="text-[10px] font-mono bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/20">
           REAL-TIME
         </span>
       </div>
@@ -62,7 +62,7 @@ export const LiveFeed: React.FC<LiveFeedProps> = ({ feedItems, loading = false }
               className="flex items-center justify-between p-3 rounded-lg bg-slate-950/70 border border-slate-800/80 hover:border-slate-700 transition-all text-xs"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600/10 text-blue-400 border border-blue-500/20">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">
                   <ShoppingBag className="h-4 w-4" />
                 </div>
                 <div>
@@ -71,7 +71,7 @@ export const LiveFeed: React.FC<LiveFeedProps> = ({ feedItems, loading = false }
                 </div>
               </div>
               <div className="text-right">
-                <span className="font-bold text-emerald-400">{formatCurrency(item.amount)}</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(item.amount)}</span>
                 <p className="text-[10px] text-slate-500">#{item.order_id}</p>
               </div>
             </div>
