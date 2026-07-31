@@ -51,23 +51,20 @@ export default function DashboardPage() {
         <MetricCard
           title={t("today_revenue")}
           value={formatCurrency(todayRevenue)}
-          subtitle={`${isKhmer ? "ចំណូលសរុប៖" : "Total:"} ${formatCurrency(totalRevenue)}`}
           icon={DollarSign}
           variant="blue"
           loading={loading}
         />
         <MetricCard
           title={t("sold_today")}
-          value={isKhmer ? `${soldToday} មុខ` : `${soldToday} Items`}
-          subtitle={`${isKhmer ? "ការបញ្ជាទិញសរុប៖" : "Total Orders:"} ${totalOrders}`}
+          value={soldToday.toString()}
           icon={PackageCheck}
           variant="emerald"
           loading={loading}
         />
         <MetricCard
           title={t("low_stock_warning")}
-          value={isKhmer ? `${lowStock} ផលិតផល` : `${lowStock} Products`}
-          subtitle={t("items_with_low_stock")}
+          value={lowStock.toString()}
           icon={AlertTriangle}
           variant="amber"
           loading={loading}
@@ -75,7 +72,6 @@ export default function DashboardPage() {
         <MetricCard
           title={t("total_bot_users")}
           value={totalUsers.toLocaleString()}
-          subtitle={t("registered_customers")}
           icon={Users}
           variant="purple"
           loading={loading}

@@ -116,12 +116,12 @@ export const Sidebar: React.FC = () => {
               key={item.href}
               href={item.href}
               className={cn(
-                "group relative flex items-center gap-3.5 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 ease-out transform active:scale-[0.98]",
+                "group relative flex items-center gap-3.5 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 ease-out transform active:scale-[0.98] border",
                 isActive
-                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 scale-[1.01]"
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 border-blue-500 scale-[1.01]"
                   : isDark
-                    ? "bg-transparent text-white/60 hover:bg-white/5 hover:text-white border border-transparent hover:border-white/5 hover:scale-[1.01]"
-                    : "bg-transparent text-slate-300 hover:bg-black/5 hover:text-slate-100 border border-transparent hover:border-black/5 hover:scale-[1.01]"
+                    ? "bg-white/5 text-white/60 hover:bg-white/10 border-white/5 hover:border-blue-500/40 hover:scale-[1.01]"
+                    : "bg-black/[0.03] text-slate-300 hover:bg-black/[0.07] border-black/5 hover:border-blue-500/40 hover:scale-[1.01]"
               )}
             >
               {/* Active Ambient Glow Effect */}

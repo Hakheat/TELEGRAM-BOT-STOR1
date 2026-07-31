@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Search, Bell, ChevronDown, Sun, Moon } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Bell, ChevronDown, Sun, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguageStore } from "@/store/use-language-store";
 import { useThemeStore } from "@/store/use-theme-store";
@@ -41,22 +40,8 @@ export const Topbar: React.FC = () => {
       )}
       style={headerBg ? { backgroundColor: headerBg } : undefined}
     >
-      {/* Search Input */}
-      <div className="relative w-72">
-        <Search className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4", isDark ? "text-slate-500" : "text-slate-400")} />
-        <Input
-          placeholder=""
-          className={cn(
-            "pl-9 h-11 border focus:border-blue-500 font-kantumruy-pro text-xs rounded-xl",
-            isDark 
-              ? "bg-white/5 border-white/10 text-white placeholder-white/40" 
-              : "bg-black/5 border-black/5 text-slate-100 placeholder-slate-400"
-          )}
-        />
-      </div>
-
       {/* Action Controls */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 ml-auto">
         {/* Theme Toggle Icon Switcher */}
         <button
           onClick={toggleTheme}
@@ -64,8 +49,8 @@ export const Topbar: React.FC = () => {
           className={cn(
             "relative flex h-10 w-16 items-center rounded-full border p-1 transition-all duration-300 cursor-pointer active:scale-95",
             isDark 
-              ? "border-slate-800 bg-slate-900/80 hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(59,130,246,0.15)]" 
-              : "border-slate-200 bg-slate-100 hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(59,130,246,0.05)]"
+              ? "border-white/10 bg-white/5 hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.05)]" 
+              : "border-black/5 bg-black/5 hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(0,0,0,0.05)]"
           )}
         >
           {/* Sliding Knob Indicator */}
@@ -96,8 +81,8 @@ export const Topbar: React.FC = () => {
             className={cn(
               "flex items-center gap-2 rounded-2xl border px-3 py-1.5 transition-all duration-300 cursor-pointer active:scale-95 shadow-sm",
               isDark 
-                ? "border-slate-800 bg-slate-900/80 hover:bg-white/5 hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(59,130,246,0.15)]" 
-                : "border-slate-200 bg-slate-100 hover:bg-slate-55 hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(59,130,246,0.05)]"
+                ? "border-white/10 bg-white/5 hover:bg-white/10 hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(255,255,255,0.05)]" 
+                : "border-black/5 bg-black/5 hover:bg-black/10 hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(0,0,0,0.05)]"
             )}
           >
             <div className="relative h-6 w-6 rounded-full overflow-hidden border border-white/20 shadow-sm flex items-center justify-center flex-shrink-0">
@@ -107,7 +92,7 @@ export const Topbar: React.FC = () => {
                 className="h-full w-full object-cover scale-110"
               />
             </div>
-            <span className="text-xs font-extrabold uppercase text-slate-200">{language}</span>
+            <span className={cn("text-xs font-extrabold uppercase", isDark ? "text-white" : "text-slate-100")}>{language}</span>
             <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
           </button>
 
@@ -179,8 +164,8 @@ export const Topbar: React.FC = () => {
           className={cn(
             "relative rounded-lg border p-2 transition-colors cursor-pointer active:scale-95",
             isDark 
-              ? "border-slate-800 bg-slate-900 text-slate-400 hover:text-slate-100 hover:border-slate-700" 
-              : "border-slate-200 bg-slate-100 text-slate-300 hover:text-slate-100 hover:border-slate-300"
+              ? "border-white/10 bg-white/5 text-white/70 hover:text-white hover:border-white/20" 
+              : "border-black/5 bg-black/5 text-slate-100 hover:text-slate-200 hover:border-black/10"
           )}
         >
           <Bell className="h-4 w-4" />
