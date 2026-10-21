@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 :root {
+  --font-kantumruy-pro: 'Kantumruy Pro', sans-serif;
   --background: #f8fafc;
   --foreground: #0f172a;
   --sidebar-bg: #ffffff;

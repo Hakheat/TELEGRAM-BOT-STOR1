@@ -27,7 +27,7 @@ export const BulkUploadModal: React.FC<BulkUploadModalProps> = ({
 
   const lineCount = rawKeysText
     .split("\n")
-    .map((l) => l.strip?.() || l.trim())
+    .map((l) => l.trim())
     .filter(Boolean).length;
 
   const handleSubmit = async (e: React.FormEvent) => {

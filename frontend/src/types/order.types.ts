@@ -6,7 +6,7 @@ export interface CustomerUser {
   last_name?: string;
   balance: number;
   role: string;
-  is_blocked: bool;
+  is_blocked: boolean;
   created_at: string;
 }
 

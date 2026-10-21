@@ -1,9 +1,29 @@
 import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://telegram-bot-stor1.onrender.com/api/v1";
+const getApiBaseUrl = () => {
+  const metaEnv = typeof import.meta !== "undefined" ? (import.meta as any).env : null;
+  if (metaEnv?.VITE_API_URL) return metaEnv.VITE_API_URL;
+  if (metaEnv?.NEXT_PUBLIC_API_URL) return metaEnv.NEXT_PUBLIC_API_URL;
+
+  try {
+    if (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_URL) {
+      return process.env.NEXT_PUBLIC_API_URL;
+    }
+  } catch (_) {}
+
+  // If running locally in browser, default to local backend
+  if (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+    return "http://localhost:8000/api/v1";
+  }
+
+  return "https://telegram-bot-stor1.onrender.com/api/v1";
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 12000, // 12 seconds timeout to prevent infinite loading
   withCredentials: true, // Sends HTTP-Only access_token cookie
   headers: {
     "Content-Type": "application/json",
@@ -33,4 +53,3 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-

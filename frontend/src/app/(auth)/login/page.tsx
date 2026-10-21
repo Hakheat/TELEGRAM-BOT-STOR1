@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 import {
   Bot,
   Lock,
@@ -17,7 +17,7 @@ import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/use-auth-store";
 
 export default function LoginPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const setUser = useAuthStore((state) => state.setUser);
 
   const [username, setUsername] = useState("");
@@ -35,10 +35,10 @@ export default function LoginPage() {
       await authService.login(username, password);
       const user = await authService.getMe();
       setUser(user);
-      router.push("/");
+      navigate("/");
     } catch (err: any) {
       if (err.code === "ERR_NETWORK" || !err.response) {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://telegram-bot-stor1.onrender.com/api/v1";
+        const apiUrl = (import.meta as any).env?.VITE_API_URL || "https://telegram-bot-stor1.onrender.com/api/v1";
         setError(`Cannot connect to Backend Server (${apiUrl}). Please make sure the backend is running and CORS is configured!`);
       } else {
         setError(err.response?.data?.detail || "Invalid credentials. Please try again.");

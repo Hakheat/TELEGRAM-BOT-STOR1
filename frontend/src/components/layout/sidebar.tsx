@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
@@ -53,7 +52,7 @@ function isColorDark(colorHex: string) {
 }
 
 export const Sidebar: React.FC = () => {
-  const pathname = usePathname();
+  const { pathname } = useLocation();
   const { isOpen, toggle } = useSidebarStore();
   const { t } = useLanguageStore();
   const { theme } = useThemeStore();
@@ -114,7 +113,7 @@ export const Sidebar: React.FC = () => {
           return (
             <Link
               key={item.href}
-              href={item.href}
+              to={item.href}
               className={cn(
                 "group relative flex items-center gap-3.5 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 ease-out transform active:scale-[0.98] border",
                 isActive

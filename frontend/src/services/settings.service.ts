@@ -2,12 +2,12 @@ import { apiClient } from "@/lib/api-client";
 
 export interface SettingsData {
   bot_token: string;
-  khqr_merchant_name: string;
-  khqr_merchant_city: string;
-  khqr_account_number: string;
-  aba_account_name: string;
-  aba_account_number: string;
-  aba_qr_link: string;
+  khqr_merchant_name?: string;
+  khqr_merchant_city?: string;
+  khqr_account_number?: string;
+  aba_account_name?: string;
+  aba_account_number?: string;
+  aba_qr_link?: string;
 }
 
 export const settingsService = {
@@ -16,7 +16,7 @@ export const settingsService = {
     return res.data;
   },
 
-  async updateSettings(data: SettingsData): Promise<SettingsData> {
+  async updateSettings(data: Partial<SettingsData>): Promise<SettingsData> {
     const res = await apiClient.post<SettingsData>("/settings", data);
     return res.data;
   },
